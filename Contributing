@@ -1,0 +1,258 @@
+# Contributing to [Project Name]
+
+Thank you for considering contributing to this project! We welcome contributions from developers of all experience levels. This guide will help you get started in under 15 minutes.
+
+## Code of Conduct
+
+Please read and respect our [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). We are committed to providing a welcoming and inclusive environment for all contributors.
+
+---
+
+## Quick Start for First-Time Contributors
+
+### Prerequisites
+- Git installed and configured
+- [List any language-specific requirements: Python 3.8+, Node.js 16+, etc.]
+
+### Getting Set Up (5 minutes)
+
+```bash
+# 1. Fork and clone
+git clone https://github.com/[your-username]/[repo-name].git
+cd [repo-name]
+
+# 2. Install dependencies
+[Installation command specific to your project]
+
+# 3. Verify setup
+[Command to verify installation works - e.g., npm run test, python -m pytest]
+```
+
+If you run into issues, check the main [README.md](README.md) **Installation** section.
+
+---
+
+## How to Contribute
+
+### 1. Reporting Bugs 🐛
+
+Found a bug? Please open a GitHub Issue with:
+
+- **Title:** Brief, descriptive (e.g., "Login button fails on mobile")
+- **Description:** What did you expect? What actually happened?
+- **Steps to reproduce:** Exact steps to trigger the bug
+- **Environment:** OS, browser/runtime version, any relevant config
+- **Screenshots/logs:** If applicable
+
+**Use the bug report template** when opening an issue.
+
+### 2. Suggesting Features 💡
+
+Have an idea? Open a GitHub Issue labeled `enhancement` with:
+
+- **What problem does this solve?** Clear use case
+- **Proposed solution:** Your suggested approach
+- **Alternatives considered:** Other solutions you evaluated
+- **Links to related discussions:** Any context from the community
+
+Start with an issue before submitting a PR—this ensures alignment with the project's vision.
+
+### 3. Submitting Code 📝
+
+#### Branch Naming Convention
+
+Create branches with clear, descriptive names:
+
+```
+feature/add-user-authentication
+bugfix/fix-crash-on-startup
+docs/update-installation-guide
+refactor/simplify-api-calls
+```
+
+#### Commit Message Format (Conventional Commits)
+
+Use this format for all commits:
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+
+**Examples:**
+```
+feat(auth): add JWT token refresh mechanism
+fix(ui): resolve button alignment on small screens
+docs(readme): clarify installation steps for Windows
+```
+
+#### Before You Submit a PR
+
+1. **Run tests locally**
+   ```bash
+   [Your test command]
+   ```
+
+2. **Check code formatting**
+   ```bash
+   [Your linting command - e.g., prettier, eslint, black]
+   ```
+
+3. **Update documentation** if you've changed behavior
+   - Add examples to README if it's user-facing
+   - Update API docs if you've changed endpoints
+   - Add comments explaining complex logic
+
+### 4. Pull Request Process
+
+1. **Push your branch** to your fork
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+2. **Open a PR** with:
+   - Clear title linking to the issue (e.g., "Fix #123: Resolve login timeout")
+   - Description of changes and testing performed
+   - Screenshots/GIFs if it's a UI change
+   - Checklist of items you've completed
+
+3. **Respond to reviews** promptly and courteously
+   - All feedback is about the code, not you
+   - Ask questions if anything is unclear
+   - Make requested changes in new commits (don't force-push)
+
+4. **Merge criteria:**
+   - ✅ All tests passing
+   - ✅ At least one approval
+   - ✅ No merge conflicts
+   - ✅ Documentation updated (if applicable)
+
+---
+
+## Good First Issues
+
+New to the project? Look for issues labeled **`good first issue`**—these are scoped and mentored contributions perfect for getting familiar with the codebase.
+
+**How to find them:** [GitHub Issues with "good first issue" label](https://github.com/[your-username]/[repo-name]/labels/good%20first%20issue)
+
+---
+
+## Coding Standards
+
+### Language-Specific Guidelines
+
+**[If Python]**
+- Follow [PEP 8](https://pep8.org/)
+- Run: `black` for formatting, `flake8` for linting
+- Type hints required for public functions
+
+**[If JavaScript/TypeScript]**
+- Use ESLint config in `.eslintrc`
+- Format with Prettier: `npm run format`
+- Use meaningful variable names; avoid single letters
+
+**[If Go]**
+- Follow [Effective Go](https://golang.org/doc/effective_go)
+- Run: `gofmt` and `golint`
+
+### General Principles
+- Keep functions small and focused (under 30 lines where possible)
+- Add comments for "why," not "what"
+- Write tests as you write code, not after
+- Avoid deep nesting (max 3 levels)
+
+---
+
+## Development Workflow
+
+### Setting Up Your Development Environment
+
+```bash
+# Install all dev dependencies
+[Command]
+
+# Start local development server (if applicable)
+[Command]
+
+# Run the full test suite
+[Command]
+
+# Build for production
+[Command]
+```
+
+### Testing
+
+We aim for **>80% code coverage**. Every PR must include tests.
+
+```bash
+# Run tests
+[Your test command]
+
+# Run tests with coverage
+[Your coverage command]
+
+# Run tests in watch mode (optional)
+[Your watch command]
+```
+
+**Test location:** Tests live alongside source code in `/tests` directory.
+
+---
+
+## Documentation Contributions
+
+Documentation is as important as code. You can contribute by:
+
+- **Fixing typos** in README or code comments
+- **Clarifying confusing sections** with examples
+- **Adding tutorials** or how-to guides in `/docs`
+- **Translating documentation** to other languages
+
+### Documentation Standards
+- Use clear, simple language
+- Include code examples for technical concepts
+- Add screenshots for UI changes
+- Link to relevant sections within docs
+
+---
+
+## Getting Help
+
+- **Stuck?** Post a comment on the issue or discussion
+- **Unsure about process?** Read [CONTRIBUTING.md](CONTRIBUTING.md) again or open a discussion
+- **Want to discuss an idea first?** Open a GitHub Discussion
+
+We're here to help. No question is too small.
+
+---
+
+## Recognition
+
+All contributors are credited in:
+- The project's [README.md](README.md) acknowledgments section
+- GitHub's automatic contributor list
+- Release notes for versions containing your contributions
+
+---
+
+## Legal
+
+By submitting a PR, you agree that:
+- Your contribution is original work (or properly attributed)
+- You grant the project a right to use your code under the project's license
+- You understand this is a volunteer-driven open source project
+
+---
+
+**Thank you for contributing! You're helping make this project better for everyone.** 🎉
+
+---
+
+*Last updated: [DATE]*
+*For questions, open an issue or discussion on GitHub.*

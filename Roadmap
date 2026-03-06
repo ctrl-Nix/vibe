@@ -1,0 +1,286 @@
+# VIBE Roadmap
+
+## Vision
+
+VIBE's mission is to democratize creative writing assistance through open-source AI tools. We believe every novelist and student should have access to intelligent feedback, brainstorming, and structural guidance—regardless of budget or technical skill.
+
+This roadmap outlines how VIBE will evolve from a hackathon project into a sustainable, community-driven platform for writers.
+
+---
+
+## Current Status: v1.0 (Hackathon Release)
+
+**Release Date:** March 2024
+
+### ✅ Completed Features
+
+- **Plotline Generator** - AI-powered story structure generation
+- **Oracle Tool** - Creative brainstorming and idea generation
+- **Judge Tool** - Automated writing evaluation and feedback
+- **Prompt Optimizer** - Refine prompts for better LLM results
+- **Clean, Responsive UI** - Works on desktop and tablet
+- **Multiple AI Models** - Support for OpenAI and Anthropic APIs
+- **Open Source Licensing** - MIT license for maximum adoption
+
+### 📊 v1.0 Metrics
+
+- Core features working and tested
+- Basic documentation complete
+- API routes functional
+- Community feedback mechanism in place
+
+---
+
+## Roadmap by Version
+
+### v1.1 (April-May 2024) - User Experience
+**Goal:** Make VIBE sticky—users want to come back and save their work.
+
+#### Features
+
+- [ ] **User Accounts & Authentication**
+  - GitHub/Google login (easier than email)
+  - Profile and project management
+  - Writing history and saved drafts
+
+- [ ] **Export Functionality**
+  - Download as `.txt`, `.docx`, `.pdf`
+  - One-click export to Google Docs
+  - Email drafts to yourself
+
+- [ ] **Community Prompt Library**
+  - Browse prompts shared by other writers
+  - Rate and review prompts
+  - Search by genre and style
+
+- [ ] **Enhanced UI/UX**
+  - Dark mode support
+  - Keyboard shortcuts
+  - Customizable editor preferences
+
+#### Priority Issues
+- [ ] #15: Add user authentication
+- [ ] #24: Implement export to Word
+- [ ] #31: Build prompt library UI
+- [ ] #42: Add dark mode
+
+---
+
+### v2.0 (June-August 2024) - Collaboration & Community
+**Goal:** Transform VIBE into a collaborative platform where writers support each other.
+
+#### Features
+
+- [ ] **Real-Time Collaborative Editing**
+  - Multiple writers working on same project
+  - Live cursor positions and comments
+  - Conflict resolution (last-write-wins)
+  - Built with WebSockets
+
+- [ ] **Writing Analytics Dashboard**
+  - Word count tracking
+  - Writing streak counter
+  - Progress toward goals
+  - Time spent writing
+
+- [ ] **Peer Review System**
+  - Request feedback from community writers
+  - Anonymous reviewer matching
+  - Structured review templates
+  - Rating and appreciation system
+
+- [ ] **AI Fine-Tuning**
+  - Train models on user preferences
+  - Remember writing style
+  - Personalized suggestions
+  - Better feedback over time
+
+- [ ] **Community Publishing**
+  - Share finished stories publicly (optional)
+  - Showcase and trending stories
+  - Genre-based discovery
+  - Reader comments and feedback
+
+#### Technical Goals
+- [ ] Implement WebSocket server for real-time sync
+- [ ] Add database support (PostgreSQL)
+- [ ] Build analytics service
+- [ ] Set up AI fine-tuning pipeline
+
+---
+
+### v3.0 (Fall 2024+) - Advanced Features
+**Goal:** Become the go-to platform for writers of all levels.
+
+#### Potential Features
+
+- **Mobile Apps** - Native iOS/Android apps for writing on-the-go
+- **AI Voice** - Read feedback and suggestions aloud
+- **Research Assistant** - Built-in research tool for historical/factual accuracy
+- **Translation Tools** - Write in one language, publish in many
+- **Academic Integration** - Direct submission to university writing centers
+- **Publishing Integration** - Connect to indie publishing platforms
+- **Community Challenges** - Monthly writing prompts and competitions
+- **Workshops & Courses** - Educational content from published authors
+
+---
+
+## Known Limitations & Technical Debt
+
+### Current v1.0 Issues
+
+1. **API Rate Limiting**
+   - Current implementation has no rate limiting
+   - **Fix in v1.1:** Implement token bucket algorithm
+   - **Priority:** High
+
+2. **Database Integration**
+   - Currently no persistent storage
+   - **Fix in v2.0:** Add PostgreSQL support
+   - **Priority:** High
+
+3. **Error Handling**
+   - Generic error messages need improvement
+   - **Fix in v1.1:** Better user-facing error messages
+   - **Priority:** Medium
+
+4. **LLM Reliability**
+   - API errors not gracefully handled
+   - **Fix in v1.1:** Retry mechanism with exponential backoff
+   - **Priority:** High
+
+5. **Mobile Responsiveness**
+   - Editor needs optimization for small screens
+   - **Fix in v1.1:** Mobile editor redesign
+   - **Priority:** Medium
+
+---
+
+## Community Contribution Areas
+
+### Where We Need Help
+
+#### 🎨 Frontend / UI Design
+- Improve visual design and accessibility
+- Create mobile-responsive layouts
+- Build reusable component library
+- Example issues: [#15](link), [#24](link)
+
+#### 🧠 Backend / Infrastructure
+- Implement database layer
+- Build API optimization
+- Set up CI/CD pipelines
+- Example issues: [#42](link), [#58](link)
+
+#### 📚 Documentation
+- Write tutorials for novelists
+- Create video guides
+- Improve inline code comments
+- Example issues: [#9](link), [#12](link)
+
+#### 🤖 AI/ML Features
+- Experiment with different models
+- Optimize prompts for quality
+- Build evaluation metrics
+- Example issues: [#67](link), [#73](link)
+
+#### 🧪 Testing & QA
+- Write unit and integration tests
+- Report and help reproduce bugs
+- Test across different browsers
+- Example issues: [#8](link), [#19](link)
+
+---
+
+## How to Help
+
+### For Contributors
+
+1. **Check the [Issues Board](https://github.com/yourusername/vibe/issues)**
+   - Look for `good first issue` label
+   - Pick something that interests you
+   - Comment to let us know you're working on it
+
+2. **Follow the [CONTRIBUTING.md](CONTRIBUTING.md) Guide**
+   - Set up development environment
+   - Follow coding standards
+   - Write tests for new features
+
+3. **Join the Community**
+   - Discord (coming soon)
+   - Monthly contributors meeting
+   - Feedback and ideas welcome
+
+### For Feedback
+
+- **Writer Feedback:** Use VIBE and tell us what works/doesn't work
+- **Student Feedback:** What features would help with assignments?
+- **Feature Requests:** Open an issue with your idea
+- **Bug Reports:** Help us squash bugs
+
+---
+
+## Release Schedule
+
+| Version | Target Date | Focus |
+|---------|------------|-------|
+| v1.0 | March 2024 | Hackathon submission |
+| v1.1 | May 2024 | User experience |
+| v2.0 | August 2024 | Collaboration |
+| v3.0 | Dec 2024+ | Advanced features |
+
+*Schedule is approximate and based on community involvement. Adjustments welcome!*
+
+---
+
+## Success Metrics
+
+### By End of 2024, We Want to See:
+
+- ⭐ **1,000+ GitHub stars**
+- 👥 **500+ monthly active users**
+- 📝 **10,000+ stories created on platform**
+- 🤝 **50+ community contributors**
+- 💬 **Active community discussions**
+- 🌍 **Translations in 5+ languages**
+
+---
+
+## How Decisions Get Made
+
+1. **Issues & Discussions** - Community proposes and votes
+2. **Monthly Review** - Core team reviews metrics and feedback
+3. **Transparent Roadmap** - Updates posted here monthly
+4. **Community Vote** - Major features voted on by contributors
+
+Everyone's voice matters in VIBE's direction!
+
+---
+
+## Long-Term Vision (2+ years)
+
+**The Goal:** Make VIBE the most accessible creative writing platform on the internet—loved equally by novelists working on their first book and students writing research papers.
+
+- 🌍 Used by writers in 50+ countries
+- 📖 1M+ stories created with VIBE's help
+- 🏆 Industry recognition and awards
+- 🤝 Thriving community of 1000+ contributors
+- 💰 Sustainable funding model (while keeping core free)
+
+---
+
+## Questions?
+
+- 💬 [Open a Discussion](https://github.com/yourusername/vibe/discussions)
+- 📧 Email: [your-email@example.com]
+- 🔔 [Watch the Repo](https://github.com/yourusername/vibe/watch) for updates
+
+---
+
+<div align="center">
+
+**Thank you for believing in VIBE's vision!**
+
+⭐ Star the repo | 🍴 Fork and contribute | 📢 Share with writers
+
+</div>
