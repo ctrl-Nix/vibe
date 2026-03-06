@@ -1,9 +1,8 @@
-import type { Metadata } from 'next';
 import './globals.css';
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'VIBE - Deep Work Sanctuary',
-  description: 'AI-powered creative writing and productivity workspace.',
+  description: 'AI-powered creative workspace.',
 };
 
 export default function RootLayout({
@@ -13,7 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-slate-900 text-white">{children}</body>
     </html>
   );
 }
