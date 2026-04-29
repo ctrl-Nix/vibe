@@ -139,6 +139,12 @@ export default function OraclePage() {
     } catch (err: any) {
       if (err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+      abortControllerRef.current = null;
+    }
+  };
+
   const handleSynthesize = async () => {
     if (!result) return;
     
