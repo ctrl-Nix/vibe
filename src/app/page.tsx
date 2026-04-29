@@ -95,8 +95,8 @@ export default function Home() {
       <Header />
 
       {/* ── HERO ── */}
-      <section className="max-w-7xl mx-auto px-4 pt-24 pb-20">
-        <div className="bg-white border-[4px] border-black shadow-[12px_12px_0px_#000] p-12 md:p-20 relative overflow-hidden">
+      <section className="max-w-7xl mx-auto px-4 pt-12 md:pt-24 pb-12 md:pb-20">
+        <div className="bg-white border-[4px] border-black shadow-[8px_8px_0px_#000] md:shadow-[12px_12px_0px_#000] p-6 md:p-20 relative overflow-hidden">
 
           {/* Decorative corner */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFE135] border-l-[4px] border-b-[4px] border-black" />
@@ -109,12 +109,12 @@ export default function Home() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-8">
+            <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase mb-8">
               <span className="block leading-[0.85] mb-2">
                 Stop fighting<br />
                 your story.
               </span>
-              <span className="bg-[#FFE135] px-2 py-1 inline-block mt-4">
+              <span className="bg-[#FFE135] px-2 py-1 inline-block mt-2 md:mt-4">
                 {typed}
                 {showCursor && (
                   <span className="animate-pulse">|</span>
@@ -191,9 +191,9 @@ export default function Home() {
           ].map((item, i) => (
             <div
               key={i}
-              className={`${item.bg} p-10 border-r-[3px] last:border-r-0 border-black`}
+              className={`${item.bg} p-6 md:p-10 border-b-[3px] md:border-b-0 md:border-r-[3px] last:border-b-0 md:last:border-r-0 border-black`}
             >
-              <div className="text-5xl font-black opacity-20 mb-4">
+              <div className="text-4xl md:text-5xl font-black opacity-20 mb-4">
                 {item.step}
               </div>
               <h3 className="text-xl font-black uppercase mb-3">
@@ -220,7 +220,7 @@ export default function Home() {
           {tools.map((tool) => (
             <Link key={tool.path} href={tool.path} className="group">
               <div
-                className={`h-full ${tool.color} border-[4px] border-black shadow-[8px_8px_0px_#000] group-hover:shadow-[4px_4px_0px_#000] group-hover:translate-x-[4px] group-hover:translate-y-[4px] transition-all p-10`}
+                className={`h-full ${tool.color} border-[4px] border-black shadow-[6px_6px_0px_#000] md:shadow-[8px_8px_0px_#000] group-hover:shadow-[2px_2px_0px_#000] group-hover:translate-x-[4px] group-hover:translate-y-[4px] transition-all p-6 md:p-10`}
               >
                 <div className="flex items-start justify-between mb-8">
                   <div className="flex items-center gap-4">
@@ -272,12 +272,12 @@ export default function Home() {
       </section>
 
       {/* ── FOOTER CTA ── */}
-      <section className="max-w-7xl mx-auto px-4 py-24">
-        <div className="bg-black text-white p-16 text-center border-[4px] border-black shadow-[12px_12px_0px_#FFE135]">
+      <section className="max-w-7xl mx-auto px-4 py-12 md:py-24">
+        <div className="bg-black text-white p-8 md:p-16 text-center border-[4px] border-black shadow-[8px_8px_0px_#FFE135] md:shadow-[12px_12px_0px_#FFE135]">
           <div className="text-xs font-black tracking-[0.3em] uppercase opacity-40 mb-4">
             Free to use · Bring your own key
           </div>
-          <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-6 leading-tight">
+          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-6 leading-tight">
             Your story is waiting.<br />
             <span className="text-[#FFE135]">Stop stalling.</span>
           </h2>
