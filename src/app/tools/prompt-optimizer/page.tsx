@@ -164,14 +164,9 @@ export default function PromptOptimizerPage() {
           </div>
         )}
 
-        <div className="mb-16 animate-fade-in">
-          <div className="flex items-center gap-6 mb-4">
-            <div className="w-16 h-16 border-[3px] border-black bg-[#FFE135] shadow-[4px_4px_0px_#000] flex items-center justify-center text-3xl">
-              ✨
-            </div>
-            <h1 className="text-5xl font-[900] tracking-tighter uppercase">Prompt Optimizer</h1>
-          </div>
-          <p className="text-xl font-bold max-w-2xl border-l-[6px] border-black pl-6 py-1">
+        <div className="mb-16 animate-fade-in border-l-[8px] border-black pl-8 py-2">
+          <h1 className="text-6xl font-black tracking-tighter uppercase">Prompt Optimizer</h1>
+          <p className="text-xl font-bold max-w-2xl mt-4 opacity-60">
             Don't just get a better prompt. <span className="bg-[#FFE135] px-2">Become a better writer.</span>
           </p>
         </div>

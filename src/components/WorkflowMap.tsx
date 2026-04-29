@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { ToolId, WORKFLOW_ROUTES } from '@/types';
 
 export const WorkflowMap = () => {
-  const tools: { id: ToolId; name: string; emoji: string; color: string }[] = [
-    { id: 'oracle', name: 'Oracle', emoji: '🔮', color: 'bg-[#4ECDC4]' },
-    { id: 'plotline', name: 'Plotline', emoji: '📖', color: 'bg-[#FF6B6B]' },
-    { id: 'judge', name: 'Judge', emoji: '⭐', color: 'bg-[#FFE135]' },
-    { id: 'prompt-optimizer', name: 'Optimizer', emoji: '✨', color: 'bg-white' },
+  const tools: { id: ToolId; name: string; color: string }[] = [
+    { id: 'oracle', name: 'Oracle', color: 'bg-[#4ECDC4]' },
+    { id: 'plotline', name: 'Plotline', color: 'bg-[#FF6B6B]' },
+    { id: 'judge', name: 'Judge', color: 'bg-[#FFE135]' },
+    { id: 'prompt-optimizer', name: 'Optimizer', color: 'bg-white' },
   ];
 
   return (
@@ -22,9 +22,8 @@ export const WorkflowMap = () => {
         {tools.map((tool) => (
           <div key={tool.id} className="relative group">
             <Link href={`/tools/${tool.id}`}>
-              <div className={`nb-card ${tool.color} p-6 flex flex-col items-center text-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] transition-all cursor-pointer`}>
-                <span className="text-3xl mb-3">{tool.emoji}</span>
-                <h3 className="font-[900] uppercase text-sm tracking-widest">{tool.name}</h3>
+              <div className={`nb-card ${tool.color} p-8 flex flex-col items-center text-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] transition-all cursor-pointer`}>
+                <h3 className="font-[900] uppercase text-base tracking-widest">{tool.name}</h3>
               </div>
             </Link>
 
