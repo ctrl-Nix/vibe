@@ -45,7 +45,6 @@ export default function Home() {
   const tools = [
     {
       name: 'Oracle',
-      emoji: '🔮',
       label: 'V — Visualize',
       description:
         'Stuck on what happens next? Oracle gives you 3 distinct ideas — each with a twist you didn\'t see coming.',
@@ -54,7 +53,6 @@ export default function Home() {
     },
     {
       name: 'Plotline',
-      emoji: '📖',
       label: 'I — Ideate',
       description:
         'Turn a rough concept into a full 3-act structure. Chapter beats, character arcs, the works.',
@@ -63,7 +61,6 @@ export default function Home() {
     },
     {
       name: 'Judge',
-      emoji: '⭐',
       label: 'B — Build',
       description:
         'Paste your draft. Get a scorecard — strengths, specific fixes, and an honest verdict. No fluff.',
@@ -72,7 +69,6 @@ export default function Home() {
     },
     {
       name: 'Prompt Optimizer',
-      emoji: '✨',
       label: 'E — Express',
       description:
         'Bad prompts get generic output. Optimizer rewrites yours and teaches you exactly why it works better.',
@@ -214,16 +210,13 @@ export default function Home() {
                 className={`h-full ${tool.color} border-[4px] border-black shadow-[8px_8px_0px_#000] group-hover:shadow-[4px_4px_0px_#000] group-hover:translate-x-[4px] group-hover:translate-y-[4px] transition-all p-10`}
               >
                 <div className="flex items-start justify-between mb-8">
-                  <div className="w-16 h-16 bg-white border-[3px] border-black flex items-center justify-center text-3xl shadow-[3px_3px_0px_#000]">
-                    {tool.emoji}
-                  </div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter">
+                    {tool.name}
+                  </h3>
                   <div className="text-[10px] font-black tracking-[0.25em] uppercase opacity-40 text-right">
                     {tool.label}
                   </div>
                 </div>
-                <h3 className="text-2xl font-black uppercase mb-3 tracking-tighter">
-                  {tool.name}
-                </h3>
                 <p className="text-sm font-bold leading-relaxed opacity-70 mb-8">
                   {tool.description}
                 </p>
@@ -243,12 +236,11 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="border-[3px] border-black bg-white grid grid-cols-1 md:grid-cols-3 divide-y-[3px] md:divide-y-0 md:divide-x-[3px] divide-black">
           {[
-            { icon: '🔑', title: 'Your key, your call', desc: 'Gemini free tier works. No credit card needed to start.' },
-            { icon: '🔒', title: 'Zero data stored', desc: 'Your writing and key live in your browser. Not our servers.' },
-            { icon: '🔗', title: 'Tools that connect', desc: 'Output from one tool flows directly into the next.' },
+            { title: 'Your key, your call', desc: 'Gemini free tier works. No credit card needed to start.' },
+            { title: 'Zero data stored', desc: 'Your writing and key live in your browser. Not our servers.' },
+            { title: 'Tools that connect', desc: 'Output from one tool flows directly into the next.' },
           ].map((item, i) => (
             <div key={i} className="p-8 flex gap-4 items-start">
-              <div className="text-2xl mt-1">{item.icon}</div>
               <div>
                 <div className="font-black uppercase text-sm mb-1">
                   {item.title}

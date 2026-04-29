@@ -7,7 +7,6 @@ const ITEMS = [
   'Ideate',
   'Build',
   'Express',
-  'Neobrutalism',
   'AI-Powered',
   'Creative Writing',
   'BYOK Architecture',
@@ -26,7 +25,7 @@ export const Marquee: React.FC = () => {
             <span className="text-xl font-black uppercase tracking-tighter text-black">
               {item}
             </span>
-            <span className="ml-12 text-[#FFE135] text-2xl">✦</span>
+            <span className="ml-12 text-black/20 text-2xl font-light">/</span>
           </div>
         ))}
       </div>
