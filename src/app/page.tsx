@@ -1,37 +1,80 @@
 // File location: src/app/page.tsx
-// Home page (Workflow Chain integrated)
+
+'use client';
 
 import Link from 'next/link';
 import Header from '@/components/Header';
 import { WorkflowMap } from '@/components/WorkflowMap';
+import { useEffect, useState } from 'react';
+
+const HEADLINE_WORDS = [
+  'Stop fighting your story.',
+  'Start building it.',
+];
+
+const TYPEWRITER_TEXT = 'Start building it.';
 
 export default function Home() {
+  const [typed, setTyped] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+  const [doneTyping, setDoneTyping] = useState(false);
+
+  // Typewriter effect on second line only
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < TYPEWRITER_TEXT.length) {
+        setTyped(TYPEWRITER_TEXT.slice(0, i + 1));
+        i++;
+      } else {
+        setDoneTyping(true);
+        clearInterval(interval);
+      }
+    }, 55);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Blink cursor — stop after typing done + 2s
+  useEffect(() => {
+    if (!doneTyping) return;
+    const timeout = setTimeout(() => setShowCursor(false), 2000);
+    return () => clearTimeout(timeout);
+  }, [doneTyping]);
+
   const tools = [
-    {
-      name: 'Judge',
-      emoji: '⭐',
-      description: 'Get AI feedback on your writing quality. Professional critique for drafts.',
-      path: '/tools/judge',
-      color: 'bg-[#FFE135]',
-    },
     {
       name: 'Oracle',
       emoji: '🔮',
-      description: 'Brainstorm creative ideas for your stories. Infinite narrative possibilities.',
+      label: 'V — Visualize',
+      description:
+        'Stuck on what happens next? Oracle gives you 3 distinct ideas — each with a twist you didn\'t see coming.',
       path: '/tools/oracle',
       color: 'bg-[#4ECDC4]',
     },
     {
       name: 'Plotline',
       emoji: '📖',
-      description: 'Generate complete story structures. Architect your narrative skeleton.',
+      label: 'I — Ideate',
+      description:
+        'Turn a rough concept into a full 3-act structure. Chapter beats, character arcs, the works.',
       path: '/tools/plotline',
       color: 'bg-[#FF6B6B]',
     },
     {
+      name: 'Judge',
+      emoji: '⭐',
+      label: 'B — Build',
+      description:
+        'Paste your draft. Get a scorecard — strengths, specific fixes, and an honest verdict. No fluff.',
+      path: '/tools/judge',
+      color: 'bg-[#FFE135]',
+    },
+    {
       name: 'Prompt Optimizer',
       emoji: '✨',
-      description: 'Improve your AI prompts. Precision engineering for creative minds.',
+      label: 'E — Express',
+      description:
+        'Bad prompts get generic output. Optimizer rewrites yours and teaches you exactly why it works better.',
       path: '/tools/prompt-optimizer',
       color: 'bg-white',
     },
@@ -41,53 +84,145 @@ export default function Home() {
     <div className="min-h-screen pb-20 bg-[#FFFBF0]">
       <Header />
 
-      {/* Hero Section */}
+      {/* ── HERO ── */}
       <section className="max-w-7xl mx-auto px-4 pt-24 pb-20">
         <div className="bg-white border-[4px] border-black shadow-[12px_12px_0px_#000] p-12 md:p-20 relative overflow-hidden">
-          {/* Decorative element */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFE135] border-l-[4px] border-b-[4px] border-black -mr-16 -mt-16 rotate-45"></div>
-          
+
+          {/* Decorative corner */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFE135] border-l-[4px] border-b-[4px] border-black" />
+
           <div className="relative z-10 max-w-3xl">
-            <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] uppercase mb-8">
-              Write <span className="bg-[#FFE135] px-4">Better</span> <br /> 
-              Stories <span className="text-[#FF6B6B]">Faster</span>
+
+            {/* Acronym pill */}
+            <div className="inline-block border-[2px] border-black bg-[#FFFBF0] px-4 py-1 text-xs font-black uppercase tracking-[0.25em] mb-8">
+              V.I.B.E — Visualize · Ideate · Build · Express
+            </div>
+
+            {/* Headline */}
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] uppercase mb-8">
+              Stop fighting<br />
+              your story.
+              <br />
+              <span className="bg-[#FFE135] px-2">
+                {typed}
+                {showCursor && (
+                  <span className="animate-pulse">|</span>
+                )}
+              </span>
             </h1>
-            <p className="text-xl md:text-2xl font-bold max-w-xl mb-12 leading-relaxed border-l-[8px] border-black pl-8 py-2">
-              VIBE is a Neobrutalist creative workspace where AI meets raw imagination. Bring your own key, control your context, and build worlds.
+
+            {/* Tagline */}
+            <p className="text-lg md:text-xl font-bold max-w-lg mb-4 leading-relaxed border-l-[6px] border-black pl-6 py-1">
+              Your story. Structured.
             </p>
-            <div className="flex flex-wrap gap-6">
-               <Link href="/tools/judge" className="nb-button text-xl px-12 py-5 bg-[#FFE135]">
-                 Start Creating →
-               </Link>
-               <div className="nb-badge bg-white py-5 px-8 font-black flex items-center gap-3">
-                 <span className="w-4 h-4 bg-emerald-500 rounded-full border-2 border-black animate-pulse"></span>
-                 SYSTEMS ONLINE
-               </div>
+
+            {/* Sub-tagline */}
+            <p className="text-base font-medium max-w-xl mb-12 opacity-60 leading-relaxed">
+              vibe. is a creative writing workspace with 4 connected AI tools.
+              Bring your own Gemini, OpenAI, or Anthropic key —
+              your writing never leaves your browser.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap gap-6 items-center">
+              <Link
+                href="/tools/oracle"
+                className="nb-button text-lg px-10 py-4 bg-[#FFE135] font-black uppercase tracking-wide border-[3px] border-black shadow-[4px_4px_0px_#000] hover:shadow-[2px_2px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              >
+                Start Writing →
+              </Link>
+              <Link
+                href="#how-it-works"
+                className="text-sm font-black uppercase tracking-widest underline underline-offset-4 opacity-60 hover:opacity-100 transition-opacity"
+              >
+                How it works ↓
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Tools Section */}
+      {/* ── HOW IT WORKS ── */}
+      <section
+        id="how-it-works"
+        className="max-w-7xl mx-auto px-4 py-16"
+      >
+        <div className="flex items-center gap-6 mb-12">
+          <h2 className="text-3xl font-black uppercase tracking-tighter bg-black text-white px-6 py-2">
+            How it works
+          </h2>
+          <div className="h-[4px] flex-grow bg-black" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-[3px] border-black">
+          {[
+            {
+              step: '01',
+              title: 'Add your key',
+              desc: 'Paste your Gemini, OpenAI, or Anthropic key. It lives in your browser — we never see it.',
+              bg: 'bg-[#FFFBF0]',
+            },
+            {
+              step: '02',
+              title: 'Set your Story Bible',
+              desc: 'Tell VIBE your characters, setting, and tone once. Every tool uses it automatically.',
+              bg: 'bg-[#FFE135]',
+            },
+            {
+              step: '03',
+              title: 'Run the workflow',
+              desc: 'Brainstorm → Structure → Evaluate → Refine. One click sends output from tool to tool.',
+              bg: 'bg-[#4ECDC4]',
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className={`${item.bg} p-10 border-r-[3px] last:border-r-0 border-black`}
+            >
+              <div className="text-5xl font-black opacity-20 mb-4">
+                {item.step}
+              </div>
+              <h3 className="text-xl font-black uppercase mb-3">
+                {item.title}
+              </h3>
+              <p className="text-sm font-medium leading-relaxed opacity-70">
+                {item.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── TOOLS ── */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className="flex items-center gap-6 mb-16">
-          <h2 className="text-4xl font-black uppercase tracking-tighter bg-black text-white px-6 py-2">The Toolkit</h2>
-          <div className="h-[4px] flex-grow bg-black"></div>
+          <h2 className="text-3xl font-black uppercase tracking-tighter bg-black text-white px-6 py-2">
+            The toolkit
+          </h2>
+          <div className="h-[4px] flex-grow bg-black" />
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {tools.map((tool) => (
             <Link key={tool.path} href={tool.path} className="group">
-              <div className={`h-full ${tool.color} border-[4px] border-black shadow-[8px_8px_0px_#000] group-hover:shadow-[4px_4px_0px_#000] group-hover:translate-x-[4px] group-hover:translate-y-[4px] transition-all p-10`}>
+              <div
+                className={`h-full ${tool.color} border-[4px] border-black shadow-[8px_8px_0px_#000] group-hover:shadow-[4px_4px_0px_#000] group-hover:translate-x-[4px] group-hover:translate-y-[4px] transition-all p-10`}
+              >
                 <div className="flex items-start justify-between mb-8">
-                  <div className="w-20 h-20 bg-white border-[4px] border-black flex items-center justify-center text-4xl shadow-[4px_4px_0px_#000]">
+                  <div className="w-16 h-16 bg-white border-[3px] border-black flex items-center justify-center text-3xl shadow-[3px_3px_0px_#000]">
                     {tool.emoji}
                   </div>
-                  <div className="text-[10px] font-black tracking-[0.3em] uppercase opacity-40">Tool v1.0</div>
+                  <div className="text-[10px] font-black tracking-[0.25em] uppercase opacity-40 text-right">
+                    {tool.label}
+                  </div>
                 </div>
-                <h3 className="text-3xl font-black uppercase mb-4 tracking-tighter">{tool.name}</h3>
-                <p className="text-lg font-bold leading-tight opacity-70 mb-8">{tool.description}</p>
-                <div className="inline-block bg-black text-white px-6 py-2 font-black uppercase text-xs tracking-widest group-hover:bg-white group-hover:text-black border-2 border-black transition-colors">
+                <h3 className="text-2xl font-black uppercase mb-3 tracking-tighter">
+                  {tool.name}
+                </h3>
+                <p className="text-sm font-bold leading-relaxed opacity-70 mb-8">
+                  {tool.description}
+                </p>
+                <div className="inline-block bg-black text-white px-5 py-2 font-black uppercase text-xs tracking-widest group-hover:bg-white group-hover:text-black border-2 border-black transition-colors">
                   Open Tool →
                 </div>
               </div>
@@ -95,20 +230,53 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Workflow Map Integration */}
+        {/* Workflow Map */}
         <WorkflowMap />
       </section>
 
-      {/* Footer / CTA */}
+      {/* ── TRUST BAR ── */}
+      <section className="max-w-7xl mx-auto px-4 py-8">
+        <div className="border-[3px] border-black bg-white grid grid-cols-1 md:grid-cols-3 divide-y-[3px] md:divide-y-0 md:divide-x-[3px] divide-black">
+          {[
+            { icon: '🔑', title: 'Your key, your call', desc: 'Gemini free tier works. No credit card needed to start.' },
+            { icon: '🔒', title: 'Zero data stored', desc: 'Your writing and key live in your browser. Not our servers.' },
+            { icon: '🔗', title: 'Tools that connect', desc: 'Output from one tool flows directly into the next.' },
+          ].map((item, i) => (
+            <div key={i} className="p-8 flex gap-4 items-start">
+              <div className="text-2xl mt-1">{item.icon}</div>
+              <div>
+                <div className="font-black uppercase text-sm mb-1">
+                  {item.title}
+                </div>
+                <div className="text-sm opacity-60 font-medium leading-relaxed">
+                  {item.desc}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FOOTER CTA ── */}
       <section className="max-w-7xl mx-auto px-4 py-24">
         <div className="bg-black text-white p-16 text-center border-[4px] border-black shadow-[12px_12px_0px_#FFE135]">
-           <h2 className="text-5xl font-black uppercase tracking-tighter mb-8">Ready to Unleash the VIBE?</h2>
-           <p className="text-xl font-bold opacity-60 mb-12 max-w-xl mx-auto">
-             No subscriptions. No tracking. Just raw creative power powered by your own API keys.
-           </p>
-           <Link href="/tools/oracle" className="nb-button bg-[#FFE135] text-black text-xl px-16 py-6 inline-block">
-             Begin Brainstorming
-           </Link>
+          <div className="text-xs font-black tracking-[0.3em] uppercase opacity-40 mb-4">
+            Free to use · Bring your own key
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-6 leading-tight">
+            Your story is waiting.<br />
+            <span className="text-[#FFE135]">Stop stalling.</span>
+          </h2>
+          <p className="text-base font-medium opacity-50 mb-12 max-w-md mx-auto leading-relaxed">
+            Add your free Gemini key and you're writing in under 2 minutes.
+            No subscription. No account. No friction.
+          </p>
+          <Link
+            href="/tools/oracle"
+            className="inline-block bg-[#FFE135] text-black text-lg px-14 py-5 font-black uppercase tracking-wide border-[3px] border-white shadow-[4px_4px_0px_#FFE135] hover:shadow-[2px_2px_0px_#FFE135] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+          >
+            Start for free →
+          </Link>
         </div>
       </section>
     </div>
