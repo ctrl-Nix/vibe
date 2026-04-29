@@ -1,9 +1,10 @@
 // File location: src/app/api/prompt-optimizer/route.ts
-// Prompt Optimizer API endpoint (Bulletproof BYOK)
+// Prompt Optimizer API endpoint (Structured JSON Output)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { callLLM } from '@/lib/llm';
 import { handleLLMError } from '@/lib/llmErrors';
+import { withJsonOutput } from '@/lib/structuredPrompt';
 import { PromptOptimizerRequest, Provider } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -28,26 +29,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const systemPrompt = `You are a prompt engineering expert. Improve prompts to get better results from AI models.
+    const toolPrompt = `You are a prompt engineering expert. Analyze the user's prompt, identify exactly what makes it weak, and rewrite it to be specific, clear, and effective.
 ${targetModel ? `Target Model: ${targetModel}` : ''}
 ${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
+
+    const schema = `{
+  "original": "the original prompt verbatim",
+  "optimized": "the rewritten prompt",
+  "changes": [
+    {
+      "what": "what changed",
+      "why": "why this improves the prompt"
+    }
+  ],
+  "score_before": number (1-10),
+  "score_after": number (1-10)
+}`;
 
     const result = await callLLM({
       apiKey,
       provider,
-      systemPrompt,
+      systemPrompt: withJsonOutput(toolPrompt, schema),
       userMessage: `Please improve this prompt:\n\n${prompt}`,
     });
 
     return NextResponse.json({
       success: true,
-      data: {
-        originalPrompt: prompt,
-        optimizedPrompt: result,
-        improvements: ['Added role definition', 'Clarified constraints', 'Structured output format'],
-        tips: ['Use delimiters', 'Provide few-shot examples'],
-        explanation: 'The optimization adds context and clear expectations for the AI.',
-      },
+      data: result,
     });
   } catch (err: unknown) {
     console.error('Prompt Optimizer API Error:', err);

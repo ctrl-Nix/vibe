@@ -16,17 +16,44 @@ export interface JudgeRequest {
   bibleContext?: string;
 }
 
-export interface JudgeResponse {
-  feedback: string;
+// Structured Result Types
+export interface JudgeResult {
   score: number;
+  verdict: string;
   strengths: string[];
-  improvements: string[];
-  detailedAnalysis: {
-    clarity: number;
-    engagement: number;
-    structure: number;
-    grammar: number;
-  };
+  fixes: string[];
+  verdict_tag: "needs-work" | "promising" | "strong" | "excellent";
+}
+
+export interface OracleResult {
+  ideas: {
+    title: string;
+    description: string;
+    twist: string;
+  }[];
+}
+
+export interface PlotlineResult {
+  title: string;
+  genre: string;
+  acts: {
+    act: "Act I" | "Act II" | "Act III";
+    label: string;
+    beats: string[];
+  }[];
+  theme: string;
+  hook: string;
+}
+
+export interface PromptOptimizerResult {
+  original: string;
+  optimized: string;
+  changes: {
+    what: string;
+    why: string;
+  }[];
+  score_before: number;
+  score_after: number;
 }
 
 export interface OracleRequest {
@@ -35,13 +62,6 @@ export interface OracleRequest {
   style?: string;
   context?: string;
   bibleContext?: string;
-}
-
-export interface OracleResponse {
-  ideas: string[];
-  suggestions: string[];
-  examples: string[];
-  tips: string[];
 }
 
 export interface PlotlineRequest {
@@ -53,42 +73,11 @@ export interface PlotlineRequest {
   bibleContext?: string;
 }
 
-export interface PlotPoint {
-  act: number;
-  title: string;
-  description: string;
-  keyEvents: string[];
-}
-
-export interface PlotlineResponse {
-  title: string;
-  logline: string;
-  plotPoints: PlotPoint[];
-  themes: string[];
-  characterArcs: {
-    name: string;
-    arc: string;
-  }[];
-  chapters?: {
-    number: number;
-    title: string;
-    summary: string;
-  }[];
-}
-
 export interface PromptOptimizerRequest {
   prompt: string;
   targetModel?: string;
   useCase?: string;
   bibleContext?: string;
-}
-
-export interface PromptOptimizerResponse {
-  originalPrompt: string;
-  optimizedPrompt: string;
-  improvements: string[];
-  tips: string[];
-  explanation: string;
 }
 
 export interface ApiError {

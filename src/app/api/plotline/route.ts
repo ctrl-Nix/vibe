@@ -1,9 +1,10 @@
 // File location: src/app/api/plotline/route.ts
-// Plotline API endpoint (Bulletproof BYOK)
+// Plotline API endpoint (Structured JSON Output)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { callLLM } from '@/lib/llm';
 import { handleLLMError } from '@/lib/llmErrors';
+import { withJsonOutput } from '@/lib/structuredPrompt';
 import { PlotlineRequest, Provider } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -28,29 +29,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const systemPrompt = `You are a story structure expert. Create a detailed 3-act plot outline for a ${genre} story.
+    const toolPrompt = `You are a master story architect. Generate a complete 3-act story structure based on the concept provided.
 ${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
+
+    const schema = `{
+  "title": "story title",
+  "genre": "genre",
+  "acts": [
+    {
+      "act": "Act I",
+      "label": "Setup",
+      "beats": ["beat 1", "beat 2", "beat 3"]
+    },
+    {
+      "act": "Act II", 
+      "label": "Conflict",
+      "beats": ["beat 1", "beat 2", "beat 3"]
+    },
+    {
+      "act": "Act III",
+      "label": "Resolution", 
+      "beats": ["beat 1", "beat 2", "beat 3"]
+    }
+  ],
+  "theme": "underlying theme in one sentence",
+  "hook": "opening hook suggestion"
+}`;
 
     const result = await callLLM({
       apiKey,
       provider,
-      systemPrompt,
+      systemPrompt: withJsonOutput(toolPrompt, schema),
       userMessage: `Create a plot for a ${genre} story about: ${concept}\nCharacters: ${characters || 'N/A'}\nSetting: ${setting || 'N/A'}`,
     });
 
     return NextResponse.json({
       success: true,
-      data: {
-        title: 'Generated Story',
-        logline: 'An AI-crafted logline for your concept.',
-        plotPoints: [
-          { act: 1, title: 'Act I: Departure', description: 'The journey begins.', keyEvents: ['Event 1', 'Event 2'] },
-          { act: 2, title: 'Act II: Confrontation', description: 'Obstacles arise.', keyEvents: ['Event 3', 'Event 4'] },
-          { act: 3, title: 'Act III: Return', description: 'Resolution reached.', keyEvents: ['Event 5', 'Event 6'] },
-        ],
-        themes: ['Growth', 'Conflict'],
-        characterArcs: [{ name: 'Protagonist', arc: 'From weakness to strength' }],
-      },
+      data: result,
     });
   } catch (err: unknown) {
     console.error('Plotline API Error:', err);

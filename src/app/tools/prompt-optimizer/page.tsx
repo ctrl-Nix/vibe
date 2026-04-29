@@ -1,23 +1,26 @@
 // File location: src/app/tools/prompt-optimizer/page.tsx
-// Prompt Optimizer tool page (Workflow Chain integrated)
+// Prompt Optimizer tool page (Structured Output & Retries)
 
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/Header';
 import InputForm, { FormField, FormData } from '@/components/InputForm';
-import ResultDisplay from '@/components/ResultDisplay';
-import { SendToButton } from '@/components/SendToButton';
-import { PromptOptimizerResponse, ApiError, ToolId } from '@/types';
+import { PromptOptimizerCard } from '@/components/output/PromptOptimizerCard';
+import { PromptOptimizerResult, ApiError, ToolId } from '@/types';
 import { useBible } from '@/hooks/useBible';
 import { getWorkflowPayload, isPayloadFresh, clearWorkflowPayload } from '@/lib/workflowStore';
+import { parseStructuredOutput } from '@/lib/parseOutput';
 
 export default function PromptOptimizerPage() {
-  const [result, setResult] = useState<PromptOptimizerResponse | null>(null);
+  const [result, setResult] = useState<PromptOptimizerResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialData, setInitialData] = useState<FormData | undefined>(undefined);
   const [incomingBanner, setIncomingBanner] = useState<ToolId | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const lastInputRef = useRef<string | null>(null);
+
   const { formattedContext } = useBible();
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -73,6 +76,11 @@ export default function PromptOptimizerPage() {
       return;
     }
 
+    if (lastInputRef.current !== formData.prompt) {
+      setRetryCount(0);
+      lastInputRef.current = formData.prompt;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
@@ -104,7 +112,21 @@ export default function PromptOptimizerPage() {
         throw new Error(errorData.error || errorData.message || 'Failed to optimize');
       }
 
-      setResult(data.data);
+      const { data: parsed, error: parseError } = parseStructuredOutput<PromptOptimizerResult>(data.data);
+
+      if (parseError) {
+        if (retryCount < 2) {
+          setRetryCount(prev => prev + 1);
+          setLoading(false);
+          handleSubmit(formData);
+          return;
+        } else {
+          throw new Error("VIBE is having trouble with this input. Try rephrasing it.");
+        }
+      }
+
+      setResult(parsed);
+      setRetryCount(0);
     } catch (err: any) {
       if (err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -137,18 +159,18 @@ export default function PromptOptimizerPage() {
             <h1 className="text-5xl font-[900] tracking-tighter uppercase">Prompt Optimizer</h1>
           </div>
           <p className="text-xl font-bold max-w-2xl border-l-[6px] border-black pl-6 py-1">
-            Precision engineering for the creative mind. Bulletproof prompt optimization.
+            Precision engineering for the creative mind. Structured prompt optimization.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="nb-card p-10 bg-white h-fit">
+        <div className="grid grid-cols-1 gap-12">
+          <div className="nb-card p-10 bg-white">
             <h2 className="text-xl font-black mb-8 uppercase tracking-widest border-b-[3px] border-black pb-2 inline-block">Draft Your Prompt</h2>
             <InputForm
               fields={fields}
               onSubmit={handleSubmit}
               loading={loading}
-              submitLabel={loading ? "Optimizing..." : "Optimize Prompt"}
+              submitLabel={loading ? (retryCount > 0 ? `Retrying (${retryCount})...` : "Optimizing...") : "Optimize Prompt"}
               initialData={initialData}
             />
             {loading && (
@@ -161,47 +183,22 @@ export default function PromptOptimizerPage() {
             )}
           </div>
 
-          <div className="nb-card p-10 bg-white min-h-[400px] flex flex-col">
-            <h2 className="text-xl font-black mb-8 uppercase tracking-widest border-b-[3px] border-black pb-2 inline-block">Refined Instructions</h2>
-            
-            <div className="flex-grow flex flex-col">
-              {!result && !loading && (
-                <div className="flex flex-col items-center justify-center h-64 border-[3px] border-black border-dashed opacity-40">
-                  <span className="text-5xl mb-4">🪄</span>
-                  <p className="font-black uppercase tracking-widest text-sm">Waiting for the magic</p>
-                </div>
-              )}
+          <div className="min-h-[400px] flex flex-col">
+            {!result && !loading && (
+              <div className="flex flex-col items-center justify-center h-64 border-[3px] border-black border-dashed opacity-40">
+                <span className="text-5xl mb-4">🪄</span>
+                <p className="font-black uppercase tracking-widest text-sm">Waiting for the magic</p>
+              </div>
+            )}
 
-              {loading && (
-                <div className="flex flex-col items-center justify-center h-64">
-                  <div className="w-16 h-16 border-[4px] border-black border-t-[#FFE135] animate-spin mb-4"></div>
-                  <p className="font-black uppercase tracking-widest text-sm">Refining Instructions...</p>
-                </div>
-              )}
+            {loading && (
+              <div className="flex flex-col items-center justify-center h-64">
+                <div className="w-16 h-16 border-[4px] border-black border-t-[#FFE135] animate-spin mb-4"></div>
+                <p className="font-black uppercase tracking-widest text-sm">Refining Instructions...</p>
+              </div>
+            )}
 
-              {result && (
-                <div className="space-y-10 animate-fade-in">
-                  <div className="space-y-6">
-                    <h3 className="text-xs font-black uppercase tracking-[0.2em] bg-[#FFE135] border-[2px] border-black px-3 py-1 inline-block">The Optimized Prompt</h3>
-                    <div className="bg-white border-[3px] border-black p-8 shadow-[6px_6px_0px_#000] relative group">
-                        <button 
-                          onClick={() => navigator.clipboard.writeText(result.optimizedPrompt)}
-                          className="absolute top-4 right-4 bg-black text-white text-[10px] font-[900] uppercase px-3 py-1 hover:bg-[#FFE135] hover:text-black transition-colors border-2 border-black"
-                        >
-                          Copy
-                        </button>
-                        <p className="font-black text-base leading-relaxed uppercase">{result.optimizedPrompt}</p>
-                    </div>
-                  </div>
-                  <ResultDisplay result={result.improvements} title="Improvements Applied" />
-                  
-                  <SendToButton 
-                    sourceToolId="prompt-optimizer" 
-                    content={result.optimizedPrompt} 
-                  />
-                </div>
-              )}
-            </div>
+            {result && <PromptOptimizerCard result={result} />}
 
             {error && (
               <div className="mt-8 p-6 bg-[#FF6B6B]/10 border-[3px] border-[#FF6B6B] text-rose-600 font-black uppercase text-xs tracking-widest leading-relaxed animate-fade-in">

@@ -1,23 +1,26 @@
 // File location: src/app/tools/oracle/page.tsx
-// Oracle tool page (Workflow Chain integrated)
+// Oracle tool page (Structured Output & Retries)
 
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/Header';
 import InputForm, { FormField, FormData } from '@/components/InputForm';
-import ResultDisplay from '@/components/ResultDisplay';
-import { SendToButton } from '@/components/SendToButton';
-import { OracleResponse, ApiError, ToolId } from '@/types';
+import { OracleCard } from '@/components/output/OracleCard';
+import { OracleResult, ApiError, ToolId } from '@/types';
 import { useBible } from '@/hooks/useBible';
 import { getWorkflowPayload, isPayloadFresh, clearWorkflowPayload } from '@/lib/workflowStore';
+import { parseStructuredOutput } from '@/lib/parseOutput';
 
 export default function OraclePage() {
-  const [result, setResult] = useState<OracleResponse | null>(null);
+  const [result, setResult] = useState<OracleResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialData, setInitialData] = useState<FormData | undefined>(undefined);
   const [incomingBanner, setIncomingBanner] = useState<ToolId | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const lastInputRef = useRef<string | null>(null);
+
   const { formattedContext } = useBible();
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -80,6 +83,11 @@ export default function OraclePage() {
       return;
     }
 
+    if (lastInputRef.current !== formData.topic) {
+      setRetryCount(0);
+      lastInputRef.current = formData.topic;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
@@ -111,7 +119,21 @@ export default function OraclePage() {
         throw new Error(errorData.error || errorData.message || 'Failed to generate ideas');
       }
 
-      setResult(data.data);
+      const { data: parsed, error: parseError } = parseStructuredOutput<OracleResult>(data.data);
+
+      if (parseError) {
+        if (retryCount < 2) {
+          setRetryCount(prev => prev + 1);
+          setLoading(false);
+          handleSubmit(formData);
+          return;
+        } else {
+          throw new Error("VIBE is having trouble with this input. Try rephrasing it.");
+        }
+      }
+
+      setResult(parsed);
+      setRetryCount(0);
     } catch (err: any) {
       if (err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -144,18 +166,18 @@ export default function OraclePage() {
             <h1 className="text-5xl font-[900] tracking-tighter uppercase">Oracle</h1>
           </div>
           <p className="text-xl font-bold max-w-2xl border-l-[6px] border-black pl-6 py-1">
-            Brainstorm creative ideas with AI support. Bulletproof creative assistance.
+            Brainstorm creative ideas with AI support. Structured creative assistance.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="nb-card p-10 bg-white h-fit">
+        <div className="grid grid-cols-1 gap-12">
+          <div className="nb-card p-10 bg-white">
             <h2 className="text-xl font-black mb-8 uppercase tracking-widest border-b-[3px] border-black pb-2 inline-block">Consult the Oracle</h2>
             <InputForm
               fields={fields}
               onSubmit={handleSubmit}
               loading={loading}
-              submitLabel={loading ? "Consulting..." : "Generate Ideas"}
+              submitLabel={loading ? (retryCount > 0 ? `Retrying (${retryCount})...` : "Consulting...") : "Generate Ideas"}
               initialData={initialData}
             />
             {loading && (
@@ -168,45 +190,22 @@ export default function OraclePage() {
             )}
           </div>
 
-          <div className="nb-card p-10 bg-white min-h-[400px] flex flex-col">
-            <h2 className="text-xl font-black mb-8 uppercase tracking-widest border-b-[3px] border-black pb-2 inline-block">Generated Ideas</h2>
-            
-            <div className="flex-grow flex flex-col">
-              {!result && !loading && (
-                <div className="flex flex-col items-center justify-center h-64 border-[3px] border-black border-dashed opacity-40">
-                  <span className="text-5xl mb-4">💡</span>
-                  <p className="font-black uppercase tracking-widest text-sm">Waiting for inspiration</p>
-                </div>
-              )}
+          <div className="min-h-[400px] flex flex-col">
+            {!result && !loading && (
+              <div className="flex flex-col items-center justify-center h-64 border-[3px] border-black border-dashed opacity-40">
+                <span className="text-5xl mb-4">💡</span>
+                <p className="font-black uppercase tracking-widest text-sm">Waiting for inspiration</p>
+              </div>
+            )}
 
-              {loading && (
-                <div className="flex flex-col items-center justify-center h-64">
-                  <div className="w-16 h-16 border-[4px] border-black border-t-[#4ECDC4] animate-spin mb-4"></div>
-                  <p className="font-black uppercase tracking-widest text-sm">Consulting spirits...</p>
-                </div>
-              )}
+            {loading && (
+              <div className="flex flex-col items-center justify-center h-64">
+                <div className="w-16 h-16 border-[4px] border-black border-t-[#4ECDC4] animate-spin mb-4"></div>
+                <p className="font-black uppercase tracking-widest text-sm">Consulting spirits...</p>
+              </div>
+            )}
 
-              {result && (
-                <div className="space-y-10 animate-fade-in">
-                  <div className="space-y-6">
-                    <h3 className="text-xs font-black uppercase tracking-[0.2em] bg-[#FFE135] border-[2px] border-black px-3 py-1 inline-block">Core Ideas</h3>
-                    <div className="grid grid-cols-1 gap-4">
-                        {result.ideas.map((idea, i) => (
-                          <div key={i} className="nb-card p-6 bg-[#FFFBF0] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] transition-all">
-                            <p className="font-black text-lg leading-snug">{idea}</p>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                  <ResultDisplay result={result.suggestions} title="Pro Suggestions" />
-                  
-                  <SendToButton 
-                    sourceToolId="oracle" 
-                    content={result.ideas.join('\n')} 
-                  />
-                </div>
-              )}
-            </div>
+            {result && <OracleCard result={result} />}
 
             {error && (
               <div className="mt-8 p-6 bg-[#FF6B6B]/10 border-[3px] border-[#FF6B6B] text-rose-600 font-black uppercase text-xs tracking-widest leading-relaxed animate-fade-in">

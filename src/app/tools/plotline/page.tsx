@@ -1,23 +1,26 @@
 // File location: src/app/tools/plotline/page.tsx
-// Plotline tool page (Workflow Chain integrated)
+// Plotline tool page (Structured Output & Retries)
 
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/Header';
 import InputForm, { FormField, FormData } from '@/components/InputForm';
-import ResultDisplay from '@/components/ResultDisplay';
-import { SendToButton } from '@/components/SendToButton';
-import { PlotlineResponse, ApiError, ToolId } from '@/types';
+import { PlotlineCard } from '@/components/output/PlotlineCard';
+import { PlotlineResult, ApiError, ToolId } from '@/types';
 import { useBible } from '@/hooks/useBible';
 import { getWorkflowPayload, isPayloadFresh, clearWorkflowPayload } from '@/lib/workflowStore';
+import { parseStructuredOutput } from '@/lib/parseOutput';
 
 export default function PlotlinePage() {
-  const [result, setResult] = useState<PlotlineResponse | null>(null);
+  const [result, setResult] = useState<PlotlineResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialData, setInitialData] = useState<FormData | undefined>(undefined);
   const [incomingBanner, setIncomingBanner] = useState<ToolId | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const lastInputRef = useRef<string | null>(null);
+
   const { formattedContext } = useBible();
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -82,6 +85,11 @@ export default function PlotlinePage() {
       return;
     }
 
+    if (lastInputRef.current !== formData.concept) {
+      setRetryCount(0);
+      lastInputRef.current = formData.concept;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
@@ -113,7 +121,21 @@ export default function PlotlinePage() {
         throw new Error(errorData.error || errorData.message || 'Failed to generate plot');
       }
 
-      setResult(data.data);
+      const { data: parsed, error: parseError } = parseStructuredOutput<PlotlineResult>(data.data);
+
+      if (parseError) {
+        if (retryCount < 2) {
+          setRetryCount(prev => prev + 1);
+          setLoading(false);
+          handleSubmit(formData);
+          return;
+        } else {
+          throw new Error("VIBE is having trouble with this input. Try rephrasing it.");
+        }
+      }
+
+      setResult(parsed);
+      setRetryCount(0);
     } catch (err: any) {
       if (err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -146,7 +168,7 @@ export default function PlotlinePage() {
             <h1 className="text-5xl font-[900] tracking-tighter uppercase">Plotline</h1>
           </div>
           <p className="text-xl font-bold max-w-2xl border-l-[6px] border-black pl-6 py-1">
-            Architect your narrative skeleton. Bulletproof structural analysis.
+            Architect your narrative skeleton. Structured structural analysis.
           </p>
         </div>
 
@@ -156,7 +178,7 @@ export default function PlotlinePage() {
             fields={fields}
             onSubmit={handleSubmit}
             loading={loading}
-            submitLabel={loading ? "Architecting..." : "Generate Story Structure"}
+            submitLabel={loading ? (retryCount > 0 ? `Retrying (${retryCount})...` : "Architecting...") : "Generate Story Structure"}
             initialData={initialData}
           />
           {loading && (
@@ -184,35 +206,7 @@ export default function PlotlinePage() {
             </div>
           )}
 
-          {result && (
-            <div className="space-y-12 animate-fade-in mb-12">
-               <div className="bg-[#FFE135] border-[3px] border-black p-10 shadow-[6px_6px_0px_#000]">
-                  <h2 className="text-4xl font-black mb-6 tracking-tighter uppercase">{result.title}</h2>
-                  <p className="bg-white border-[2px] border-black p-6 font-bold text-lg italic shadow-[4px_4px_0px_#000]">
-                    "{result.logline}"
-                  </p>
-               </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {result.plotPoints.map((point) => (
-                    <div key={point.act} className="nb-card bg-white p-8 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] transition-all flex flex-col">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="w-12 h-12 bg-black text-white font-black flex items-center justify-center text-xl">
-                          {point.act}
-                        </div>
-                        <h3 className="text-lg font-black uppercase tracking-tight leading-none">{point.title}</h3>
-                      </div>
-                      <p className="font-bold text-sm leading-relaxed flex-grow">{point.description}</p>
-                    </div>
-                  ))}
-               </div>
-               
-               <SendToButton 
-                sourceToolId="plotline" 
-                content={result.plotPoints.map(p => `${p.act}: ${p.title}\n${p.description}`).join('\n\n')} 
-              />
-            </div>
-          )}
+          {result && <PlotlineCard result={result} />}
 
           {error && (
             <div className="mb-12 p-6 bg-[#FF6B6B]/10 border-[3px] border-[#FF6B6B] text-rose-600 font-black uppercase text-xs tracking-widest leading-relaxed animate-fade-in">

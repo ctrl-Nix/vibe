@@ -1,9 +1,10 @@
 // File location: src/app/api/oracle/route.ts
-// Oracle API endpoint (Bulletproof BYOK)
+// Oracle API endpoint (Structured JSON Output)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { callLLM } from '@/lib/llm';
 import { handleLLMError } from '@/lib/llmErrors';
+import { withJsonOutput } from '@/lib/structuredPrompt';
 import { OracleRequest, Provider } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -28,24 +29,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const systemPrompt = `You are a creative writing coach. Generate ${type} ideas for writers. Provide 5+ creative and unique ideas.
+    const toolPrompt = `You are a creative writing muse. Generate exactly 3 distinct, imaginative ideas based on the user's request. Each idea should surprise and inspire.
 ${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
+
+    const schema = `{
+  "ideas": [
+    {
+      "title": "4-6 word punchy headline",
+      "description": "2-3 sentence expansion",
+      "twist": "one unexpected angle"
+    }
+  ]
+}`;
 
     const result = await callLLM({
       apiKey,
       provider,
-      systemPrompt,
+      systemPrompt: withJsonOutput(toolPrompt, schema),
       userMessage: `Generate creative ${type} ideas for: ${topic}${style ? `\nStyle/Tone: ${style}` : ''}`,
     });
 
     return NextResponse.json({
       success: true,
-      data: {
-        ideas: result.split('\n').filter(line => line.trim().length > 0).slice(0, 5),
-        suggestions: ['Explore the internal conflict', 'Add a ticking clock element'],
-        examples: ['A scene where the character loses everything but gains clarity.'],
-        tips: ['Focus on sensory details', 'Keep the stakes personal'],
-      },
+      data: result,
     });
   } catch (err: unknown) {
     console.error('Oracle API Error:', err);
