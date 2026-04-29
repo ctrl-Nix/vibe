@@ -1,10 +1,118 @@
 @import "tailwindcss";
 
+:root {
+  --nb-bg: #FFFBF0;
+  --nb-yellow: #FFE135;
+  --nb-coral: #FF6B6B;
+  --nb-teal: #4ECDC4;
+  --nb-black: #000000;
+  --nb-border: 2px solid #000000;
+  --nb-shadow: 4px 4px 0px #000000;
+  --nb-shadow-sm: 2px 2px 0px #000000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
+body {
+  background-color: var(--nb-bg);
+  color: var(--nb-black);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
 ::selection {
-  background-color: #6366f1;
-  color: white;
+  background-color: var(--nb-yellow);
+  color: var(--nb-black);
+}
+
+/* Neobrutalism Utilities */
+.nb-card {
+  background-color: #FFFFFF;
+  border: var(--nb-border);
+  box-shadow: var(--nb-shadow);
+  transition: all 0.1s ease-in-out;
+}
+
+.nb-button {
+  background-color: var(--nb-yellow);
+  border: var(--nb-border);
+  box-shadow: var(--nb-shadow);
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.1s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.nb-button:hover {
+  transform: translate(2px, 2px);
+  box-shadow: var(--nb-shadow-sm);
+}
+
+.nb-button:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px;
+}
+
+.nb-input {
+  background-color: #FFFFFF;
+  border: var(--nb-border);
+  padding: 0.75rem 1rem;
+  width: 100%;
+  transition: all 0.1s ease-in-out;
+}
+
+.nb-input:focus {
+  outline: none;
+  box-shadow: var(--nb-shadow-sm);
+  transform: translate(-1px, -1px);
+}
+
+.nb-badge {
+  border: var(--nb-border);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--nb-bg);
+  border-left: var(--nb-border);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--nb-black);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
 }

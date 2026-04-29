@@ -1,6 +1,3 @@
-// File location: src/components/ResultDisplay.tsx
-// Display results component
-
 'use client';
 
 import { useState } from 'react';
@@ -27,22 +24,20 @@ export default function ResultDisplay({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      <div className="flex items-center justify-between px-1">
+        <h3 className="text-[10px] font-black text-black uppercase tracking-[0.2em]">{title}</h3>
         <button
           onClick={handleCopy}
-          className={`px-4 py-2 rounded-lg font-medium transition-all ${
-            copied
-              ? 'bg-green-500 text-white'
-              : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+          className={`nb-badge transition-all py-1 px-3 ${
+            copied ? 'bg-[#4ECDC4]' : 'bg-[#FFE135] hover:bg-white'
           }`}
         >
-          {copied ? '✓ Copied!' : 'Copy'}
+          {copied ? '✓ COPIED' : 'COPY'}
         </button>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg p-6 max-h-96 overflow-y-auto">
-        <div className="text-gray-700 whitespace-pre-wrap text-sm">
+      <div className="bg-white border-2 border-black shadow-[4px_4px_0px_#000] p-6 max-h-[32rem] overflow-y-auto custom-scrollbar">
+        <div className="text-black whitespace-pre-wrap text-sm leading-relaxed font-medium">
           {resultText}
         </div>
       </div>

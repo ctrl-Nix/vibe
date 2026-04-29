@@ -1,10 +1,19 @@
 // File location: src/types/index.ts
 // TypeScript types for VIBE
 
+export interface StoryBible {
+  title: string;
+  genre: string;
+  characters: string;
+  setting: string;
+  tone: string;
+}
+
 export interface JudgeRequest {
   text: string;
   genre?: string;
   tone?: string;
+  bibleContext?: string;
 }
 
 export interface JudgeResponse {
@@ -25,6 +34,7 @@ export interface OracleRequest {
   type: 'character' | 'plot' | 'dialogue' | 'worldbuilding' | 'general';
   style?: string;
   context?: string;
+  bibleContext?: string;
 }
 
 export interface OracleResponse {
@@ -40,6 +50,7 @@ export interface PlotlineRequest {
   characters?: string;
   setting?: string;
   tone?: string;
+  bibleContext?: string;
 }
 
 export interface PlotPoint {
@@ -69,6 +80,7 @@ export interface PromptOptimizerRequest {
   prompt: string;
   targetModel?: string;
   useCase?: string;
+  bibleContext?: string;
 }
 
 export interface PromptOptimizerResponse {

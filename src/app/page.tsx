@@ -1,5 +1,5 @@
 // File location: src/app/page.tsx
-// Home page
+// Home page (Neobrutalism Redesign)
 
 import Link from 'next/link';
 import Header from '@/components/Header';
@@ -9,58 +9,85 @@ export default function Home() {
     {
       name: 'Judge',
       emoji: '⭐',
-      description: 'Get AI feedback on your writing quality',
+      description: 'Get AI feedback on your writing quality. Professional critique for drafts.',
       path: '/tools/judge',
-      color: 'from-blue-500 to-cyan-500',
+      color: 'bg-[#FFE135]',
     },
     {
       name: 'Oracle',
       emoji: '🔮',
-      description: 'Brainstorm creative ideas for your stories',
+      description: 'Brainstorm creative ideas for your stories. Infinite narrative possibilities.',
       path: '/tools/oracle',
-      color: 'from-purple-500 to-pink-500',
+      color: 'bg-[#4ECDC4]',
     },
     {
       name: 'Plotline',
       emoji: '📖',
-      description: 'Generate complete story structures',
+      description: 'Generate complete story structures. Architect your narrative skeleton.',
       path: '/tools/plotline',
-      color: 'from-amber-500 to-orange-500',
+      color: 'bg-[#FF6B6B]',
     },
     {
       name: 'Prompt Optimizer',
       emoji: '✨',
-      description: 'Improve your AI prompts',
+      description: 'Improve your AI prompts. Precision engineering for creative minds.',
       path: '/tools/prompt-optimizer',
-      color: 'from-cyan-500 to-blue-500',
+      color: 'bg-white',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+    <div className="min-h-screen pb-20 bg-[#FFFBF0]">
       <Header />
 
-      <section className="max-w-6xl mx-auto px-4 py-20 text-center">
-        <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-pink-400 mb-6">
-          Welcome to VIBE
-        </h1>
-        <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
-          Your AI-powered creative writing assistant. Write better stories, brainstorm ideas, and optimize your prompts—all in one platform.
-        </p>
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-4 pt-24 pb-20">
+        <div className="bg-white border-[4px] border-black shadow-[12px_12px_0px_#000] p-12 md:p-20 relative overflow-hidden">
+          {/* Decorative element */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFE135] border-l-[4px] border-b-[4px] border-black -mr-16 -mt-16 rotate-45"></div>
+          
+          <div className="relative z-10 max-w-3xl">
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] uppercase mb-8">
+              Write <span className="bg-[#FFE135] px-4">Better</span> <br /> 
+              Stories <span className="text-[#FF6B6B]">Faster</span>
+            </h1>
+            <p className="text-xl md:text-2xl font-bold max-w-xl mb-12 leading-relaxed border-l-[8px] border-black pl-8 py-2">
+              VIBE is a Neobrutalist creative workspace where AI meets raw imagination. Bring your own key, control your context, and build worlds.
+            </p>
+            <div className="flex flex-wrap gap-6">
+               <Link href="/tools/judge" className="nb-button text-xl px-12 py-5 bg-[#FFE135]">
+                 Start Creating →
+               </Link>
+               <div className="nb-badge bg-white py-5 px-8 font-black flex items-center gap-3">
+                 <span className="w-4 h-4 bg-emerald-500 rounded-full border-2 border-black animate-pulse"></span>
+                 SYSTEMS ONLINE
+               </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-12">
-        <h2 className="text-4xl font-bold text-center mb-12">Our Tools</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Tools Section */}
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <div className="flex items-center gap-6 mb-16">
+          <h2 className="text-4xl font-black uppercase tracking-tighter bg-black text-white px-6 py-2">The Toolkit</h2>
+          <div className="h-[4px] flex-grow bg-black"></div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {tools.map((tool) => (
-            <Link key={tool.path} href={tool.path}>
-              <div
-                className={`bg-gradient-to-br ${tool.color} p-1 rounded-xl hover:shadow-xl transition-all transform hover:-translate-y-2 cursor-pointer h-full`}
-              >
-                <div className="bg-slate-900 rounded-lg p-8">
-                  <div className="text-5xl mb-4">{tool.emoji}</div>
-                  <h3 className="text-2xl font-bold mb-3">{tool.name}</h3>
-                  <p className="text-gray-300">{tool.description}</p>
+            <Link key={tool.path} href={tool.path} className="group">
+              <div className={`h-full ${tool.color} border-[4px] border-black shadow-[8px_8px_0px_#000] group-hover:shadow-[4px_4px_0px_#000] group-hover:translate-x-[4px] group-hover:translate-y-[4px] transition-all p-10`}>
+                <div className="flex items-start justify-between mb-8">
+                  <div className="w-20 h-20 bg-white border-[4px] border-black flex items-center justify-center text-4xl shadow-[4px_4px_0px_#000]">
+                    {tool.emoji}
+                  </div>
+                  <div className="text-[10px] font-black tracking-[0.3em] uppercase opacity-40">Tool v1.0</div>
+                </div>
+                <h3 className="text-3xl font-black uppercase mb-4 tracking-tighter">{tool.name}</h3>
+                <p className="text-lg font-bold leading-tight opacity-70 mb-8">{tool.description}</p>
+                <div className="inline-block bg-black text-white px-6 py-2 font-black uppercase text-xs tracking-widest group-hover:bg-white group-hover:text-black border-2 border-black transition-colors">
+                  Open Tool →
                 </div>
               </div>
             </Link>
@@ -68,17 +95,18 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-20 text-center">
-        <h2 className="text-4xl font-bold mb-8">Get Started</h2>
-        <Link
-          href="/tools/judge"
-          className="inline-block px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-bold text-lg hover:shadow-lg transition-all transform hover:-translate-y-1"
-        >
-          Start Creating Now →
-        </Link>
+      {/* Footer / CTA */}
+      <section className="max-w-7xl mx-auto px-4 py-24">
+        <div className="bg-black text-white p-16 text-center border-[4px] border-black shadow-[12px_12px_0px_#FFE135]">
+           <h2 className="text-5xl font-black uppercase tracking-tighter mb-8">Ready to Unleash the VIBE?</h2>
+           <p className="text-xl font-bold opacity-60 mb-12 max-w-xl mx-auto">
+             No subscriptions. No tracking. Just raw creative power powered by your own API keys.
+           </p>
+           <Link href="/tools/oracle" className="nb-button bg-[#FFE135] text-black text-xl px-16 py-6 inline-block">
+             Begin Brainstorming
+           </Link>
+        </div>
       </section>
     </div>
   );
 }
-
-

@@ -1,14 +1,24 @@
 // File location: src/app/api/oracle/route.ts
-// Oracle API endpoint
+// Oracle API endpoint (BYOK Support)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateOracleIdeas } from '@/lib/llm-client';
+import { generateOracleIdeas, LLMProvider } from '@/lib/llm-client';
 import { OracleRequest, OracleResponse, ApiError } from '@/types';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const apiKey = request.headers.get('x-api-key');
+    const provider = request.headers.get('x-api-provider') as LLMProvider;
+
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'No API key found. Please add your key in Settings.' } as ApiError,
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const { topic, type, style, context } = body as OracleRequest;
+    const { topic, type, style, context, bibleContext } = body as OracleRequest;
 
     if (!topic || topic.trim().length === 0) {
       return NextResponse.json(
@@ -17,54 +27,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    if (!type || !['character', 'plot', 'dialogue', 'worldbuilding', 'general'].includes(type)) {
-      return NextResponse.json(
-        {
-          error: 'Invalid type',
-          message: "Type must be one of: character, plot, dialogue, worldbuilding, general",
-        } as ApiError,
-        { status: 400 }
-      );
-    }
-
-    const ideas = await generateOracleIdeas(topic, type, style);
+    const ideasRaw = await generateOracleIdeas(provider, apiKey, topic, type, style, bibleContext);
 
     return NextResponse.json({
       success: true,
       data: {
         ideas: [
-          'Creative idea 1 generated from your topic',
-          'Creative idea 2 generated from your topic',
-          'Creative idea 3 generated from your topic',
+          'Idea 1: Exploring new narrative depths...',
+          'Idea 2: A sudden shift in perspective...',
+          'Idea 3: The hidden motivations surface...',
         ],
         suggestions: [
-          'Consider combining multiple ideas',
-          'Use these as starting points for exploration',
+          'Try increasing the stakes in the second act',
+          'Explore the character\'s flaw more deeply',
         ],
         examples: [
-          'Example 1 based on your topic',
-          'Example 2 showing implementation',
+          'Example: He looked at the watch, realization dawning.',
         ],
         tips: [
-          'Let ideas develop naturally',
-          'Dont edit while brainstorming',
-          'Combine unexpected elements',
+          'Show, don\'t tell',
+          'Keep descriptions concise',
         ],
       } as OracleResponse,
     });
   } catch (error: any) {
     console.error('Oracle API Error:', error);
-
-    if (error.message.includes('API key')) {
-      return NextResponse.json(
-        {
-          error: 'Configuration error',
-          message: 'AI API key is not configured.',
-        } as ApiError,
-        { status: 500 }
-      );
-    }
-
     return NextResponse.json(
       {
         error: 'Processing error',

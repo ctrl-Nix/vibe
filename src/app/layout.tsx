@@ -1,3 +1,4 @@
+import { StoryBiblePanel } from '@/components/StoryBiblePanel';
 import './globals.css';
 
 export const metadata = {
@@ -12,7 +13,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-slate-900 text-white">{children}</body>
+      <body className="bg-[#05050a] text-white min-h-screen">
+        {children}
+        <StoryBiblePanel />
+      </body>
     </html>
   );
 }

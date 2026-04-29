@@ -1,14 +1,24 @@
 // File location: src/app/api/judge/route.ts
-// Judge API endpoint
+// Judge API endpoint (BYOK Support)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateJudgeFeedback, parseJudgeFeedback } from '@/lib/llm-client';
+import { generateJudgeFeedback, parseJudgeFeedback, LLMProvider } from '@/lib/llm-client';
 import { JudgeRequest, JudgeResponse, ApiError } from '@/types';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const apiKey = request.headers.get('x-api-key');
+    const provider = request.headers.get('x-api-provider') as LLMProvider;
+
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'No API key found. Please add your key in Settings.' } as ApiError,
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const { text, genre, tone } = body as JudgeRequest;
+    const { text, genre, tone, bibleContext } = body as JudgeRequest;
 
     if (!text || text.trim().length === 0) {
       return NextResponse.json(
@@ -17,14 +27,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    if (text.length > 10000) {
-      return NextResponse.json(
-        { error: 'Text too long', message: 'Maximum 10,000 characters allowed' } as ApiError,
-        { status: 400 }
-      );
-    }
-
-    const feedback = await generateJudgeFeedback(text, genre);
+    const feedback = await generateJudgeFeedback(provider, apiKey, text, genre, bibleContext);
     const parsedFeedback = parseJudgeFeedback(feedback);
 
     return NextResponse.json({
@@ -44,17 +47,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
   } catch (error: any) {
     console.error('Judge API Error:', error);
-
-    if (error.message.includes('API key')) {
-      return NextResponse.json(
-        {
-          error: 'Configuration error',
-          message: 'AI API key is not configured. Please set up your API key in environment variables.',
-        } as ApiError,
-        { status: 500 }
-      );
-    }
-
     return NextResponse.json(
       {
         error: 'Processing error',

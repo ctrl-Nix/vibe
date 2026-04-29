@@ -1,13 +1,15 @@
-// File location: src/components/Header.tsx
-// Navigation header component
-
 'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { ActiveBibleBadge } from './ActiveBibleBadge';
+import { ApiKeyModal } from './ApiKeyModal';
+import { useApiKey } from '@/hooks/useApiKey';
 
 export default function Header() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isSaved } = useApiKey();
 
   const tools = [
     { name: 'Judge', path: '/tools/judge', emoji: '⭐' },
@@ -17,52 +19,79 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg">
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="bg-[#FFE135] border-b-[3px] border-black sticky top-0 z-40">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold">VIBE</span>
-          </Link>
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center">
+              <span className="text-3xl font-[900] tracking-tighter text-black uppercase">VIBE</span>
+            </Link>
+            
+            <div className="hidden lg:block">
+              <ActiveBibleBadge />
+            </div>
+          </div>
 
           <div className="hidden md:flex items-center space-x-1">
             {tools.map((tool) => (
               <Link
                 key={tool.path}
                 href={tool.path}
-                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
+                className="px-4 py-2 text-xs font-black uppercase tracking-widest text-black hover:bg-black hover:text-[#FFE135] transition-colors"
               >
-                <span className="mr-1">{tool.emoji}</span>
                 {tool.name}
               </Link>
             ))}
+            
+            {/* Settings Button with Dot Indicator */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="ml-4 p-2 relative hover:scale-110 transition-transform"
+              title="API Settings"
+            >
+              <span className="text-xl">⚙️</span>
+              <span className={`absolute top-1.5 right-1.5 w-3 h-3 rounded-full border-2 border-black ${isSaved ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+            </button>
           </div>
 
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2"
-          >
-            <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          <div className="md:hidden flex items-center gap-4">
+             <button
+              onClick={() => setIsModalOpen(true)}
+              className="p-2 relative"
+            >
+              <span className="text-xl">⚙️</span>
+              <span className={`absolute top-1.5 right-1.5 w-3 h-3 rounded-full border-2 border-black ${isSaved ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+            </button>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 border-2 border-black bg-white shadow-[2px_2px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+            >
+              <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {isOpen && (
-          <div className="md:hidden pb-4">
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden pb-6 pt-2 space-y-2 animate-fade-in">
             {tools.map((tool) => (
               <Link
                 key={tool.path}
                 href={tool.path}
-                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-indigo-700"
-                onClick={() => setIsOpen(false)}
+                className="block px-4 py-3 text-sm font-black uppercase tracking-widest border-2 border-black bg-white shadow-[4px_4px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all"
+                onClick={() => setIsMenuOpen(false)}
               >
-                <span className="mr-2">{tool.emoji}</span>
+                <span className="mr-3">{tool.emoji}</span>
                 {tool.name}
               </Link>
             ))}
           </div>
         )}
       </nav>
+
+      <ApiKeyModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </header>
   );
 }

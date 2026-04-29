@@ -1,5 +1,5 @@
 // File location: src/app/tools/plotline/page.tsx
-// Plotline tool page
+// Plotline tool page (Neobrutalism + BYOK)
 
 'use client';
 
@@ -8,11 +8,15 @@ import Header from '@/components/Header';
 import InputForm, { FormField, FormData } from '@/components/InputForm';
 import ResultDisplay from '@/components/ResultDisplay';
 import { PlotlineResponse, ApiError } from '@/types';
+import { useBible } from '@/hooks/useBible';
+import { useApiKey } from '@/hooks/useApiKey';
 
 export default function PlotlinePage() {
   const [result, setResult] = useState<PlotlineResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { formattedContext } = useBible();
+  const { apiKey, provider } = useApiKey();
 
   const fields: FormField[] = [
     {
@@ -59,8 +63,15 @@ export default function PlotlinePage() {
     try {
       const response = await fetch('/api/plotline', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'x-api-provider': provider,
+        },
+        body: JSON.stringify({
+          ...formData,
+          bibleContext: formattedContext,
+        }),
       });
 
       const data = await response.json();
@@ -79,82 +90,112 @@ export default function PlotlinePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+    <div className="min-h-screen pb-20">
       <Header />
 
-      <main className="max-w-6xl mx-auto px-4 py-12">
-        <div className="mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-4xl">📖</span>
-            <h1 className="text-4xl font-bold text-gray-900">Plotline</h1>
+      <main className="max-w-6xl mx-auto px-4 py-16">
+        <div className="mb-16">
+          <div className="flex items-center gap-6 mb-4">
+            <div className="w-16 h-16 border-[3px] border-black bg-[#FF6B6B] shadow-[4px_4px_0px_#000] flex items-center justify-center text-3xl">
+              📖
+            </div>
+            <h1 className="text-5xl font-black tracking-tighter uppercase">Plotline</h1>
           </div>
-          <p className="text-gray-600 text-lg">Generate a complete story structure with acts and chapters.</p>
+          <p className="text-xl font-medium max-w-2xl border-l-[6px] border-black pl-6">
+            Generate a complete story structure with acts and chapters. Build the skeleton of your masterpiece.
+          </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700"><strong>Error:</strong> {error}</p>
+          <div className="mb-10 p-6 bg-[#FF6B6B] border-[3px] border-black shadow-[4px_4px_0px_#000] font-bold uppercase text-sm flex items-center gap-4">
+            <span className="text-2xl">⚠️</span>
+            {error}
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">Create Your Plot</h2>
+        <div className="nb-card p-10 bg-white mb-16">
+          <h2 className="text-xl font-black mb-8 uppercase tracking-widest border-b-[3px] border-black pb-2 inline-block">Architect Your Story</h2>
           <InputForm
             fields={fields}
             onSubmit={handleSubmit}
             loading={loading}
-            submitLabel="Generate Plot"
+            submitLabel="Generate Story Structure"
           />
         </div>
 
         {!result && !loading && (
-          <div className="bg-amber-100 border border-amber-200 rounded-lg p-12 text-center">
-            <p className="text-lg text-amber-900">Enter your story concept to generate a plot</p>
+          <div className="flex flex-col items-center justify-center h-64 border-[3px] border-black border-dashed opacity-40 mb-12">
+            <span className="text-5xl mb-4">📜</span>
+            <p className="font-black uppercase tracking-widest text-sm">Awaiting your vision</p>
           </div>
         )}
 
         {loading && (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin">
-              <svg className="w-12 h-12 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </div>
+          <div className="flex flex-col items-center justify-center h-64 mb-12">
+            <div className="w-16 h-16 border-[4px] border-black border-t-[#FF6B6B] animate-spin mb-4"></div>
+            <p className="font-black uppercase tracking-widest text-sm">Weaving the threads...</p>
           </div>
         )}
 
         {result && (
-          <div className="space-y-8">
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">{result.title}</h2>
-              <p className="text-gray-600 italic text-lg border-l-4 border-amber-500 pl-4">
-                {result.logline}
-              </p>
-            </div>
+          <div className="space-y-12 animate-fade-in">
+             <div className="bg-[#FFE135] border-[3px] border-black p-10 shadow-[6px_6px_0px_#000]">
+                <h2 className="text-4xl font-black mb-6 tracking-tighter">{result.title}</h2>
+                <div className="bg-white border-[2px] border-black p-6 font-bold text-lg italic shadow-[4px_4px_0px_#000]">
+                  "{result.logline}"
+                </div>
+             </div>
 
-            {result.plotPoints.map((point) => (
-              <div key={point.act} className="bg-white rounded-lg shadow-md p-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold">
-                    {point.act}
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {result.plotPoints.map((point) => (
+                  <div key={point.act} className="nb-card bg-white p-8 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] transition-all flex flex-col">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 bg-black text-white font-black flex items-center justify-center text-xl">
+                        {point.act}
+                      </div>
+                      <h3 className="text-lg font-black uppercase tracking-tight leading-none">{point.title}</h3>
+                    </div>
+                    <p className="font-medium text-sm leading-relaxed mb-8 flex-grow">{point.description}</p>
+                    
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-2 py-1 inline-block">Key Beats</h4>
+                      <ul className="space-y-2">
+                        {point.keyEvents.map((e, i) => (
+                          <li key={i} className="flex items-center gap-3 font-bold text-[11px] uppercase tracking-tight">
+                            <span className="w-2 h-2 bg-[#FF6B6B] border border-black shrink-0"></span>
+                            {e}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-semibold text-gray-900">{point.title}</h3>
-                </div>
-                <p className="text-gray-600 mb-4">{point.description}</p>
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">Key Events:</h4>
-                  <ul className="space-y-2">
-                    {point.keyEvents.map((event, idx) => (
-                      <li key={idx} className="flex items-start gap-3 text-gray-700">
-                        <span className="text-amber-500 mt-1">→</span>
-                        <span>{event}</span>
-                      </li>
+                ))}
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <div className="nb-card p-8 bg-[#4ECDC4]">
+                  <h3 className="text-sm font-black uppercase tracking-widest mb-6 border-b-[2px] border-black pb-1 inline-block">Thematic Resonance</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {result.themes.map((t, i) => (
+                      <span key={i} className="bg-white border-[2px] border-black px-4 py-2 font-black uppercase text-xs shadow-[2px_2px_0px_#000]">
+                        {t}
+                      </span>
                     ))}
-                  </ul>
-                </div>
-              </div>
-            ))}
+                  </div>
+               </div>
+
+               <div className="nb-card p-8 bg-[#FFE135]">
+                  <h3 className="text-sm font-black uppercase tracking-widest mb-6 border-b-[2px] border-black pb-1 inline-block">Character Development</h3>
+                  <div className="space-y-4">
+                    {result.characterArcs.map((c, i) => (
+                      <div key={i} className="bg-white border-[2px] border-black p-4 shadow-[2px_2px_0px_#000]">
+                        <p className="text-[10px] font-black uppercase tracking-widest mb-1">{c.name}</p>
+                        <p className="font-bold text-sm">{c.arc}</p>
+                      </div>
+                    ))}
+                  </div>
+               </div>
+             </div>
           </div>
         )}
       </main>
