@@ -15,7 +15,7 @@ export function parseStructuredOutput<T>(raw: string):
     if (data && typeof data === 'object' && "error" in (data as object)) {
       return { 
         data: null, 
-        error: (data as { error: string }).error 
+        error: (data as unknown as { error: string }).error 
       };
     }
     
