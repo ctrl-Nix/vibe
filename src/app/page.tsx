@@ -5,6 +5,7 @@
 import Link from 'next/link';
 import Header from '@/components/Header';
 import { WorkflowMap } from '@/components/WorkflowMap';
+import { Marquee } from '@/components/Marquee';
 import { useEffect, useState } from 'react';
 
 const HEADLINE_WORDS = [
@@ -142,6 +143,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── MARQUEE ── */}
+      <Marquee />
 
       {/* ── HOW IT WORKS ── */}
       <section
