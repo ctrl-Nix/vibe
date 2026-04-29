@@ -20,17 +20,25 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { topic, type, style, bibleContext } = body as OracleRequest;
+    const { topic, type, style, bibleContext, isSynthesis, ideasToSynthesize } = body;
 
-    if (!topic) {
+    if (!topic && !isSynthesis) {
       return NextResponse.json(
         { error: "Invalid input", message: "Topic is required" },
         { status: 400 }
       );
     }
 
-    const toolPrompt = `You are a creative writing muse. Generate exactly 3 distinct, imaginative ideas based on the user's request. Each idea should surprise and inspire.
+    let toolPrompt = `You are a creative writing muse. Generate exactly 3 distinct, imaginative ideas based on the user's request. Each idea should surprise and inspire.
 ${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
+
+    let userMessage = `Generate creative ${type} ideas for: ${topic}${style ? `\nStyle/Tone: ${style}` : ''}`;
+
+    if (isSynthesis && ideasToSynthesize) {
+      toolPrompt = `You are a master narrative architect. Take the following separate ideas and synthesize them into ONE unified, complex, and high-concept story premise. Return it in the ideas array (just one item).
+${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
+      userMessage = `Synthesize these ideas into one masterpiece:\n\n${ideasToSynthesize.join('\n\n---\n\n')}`;
+    }
 
     const schema = `{
   "ideas": [
@@ -46,7 +54,7 @@ ${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
       apiKey,
       provider,
       systemPrompt: withJsonOutput(toolPrompt, schema),
-      userMessage: `Generate creative ${type} ideas for: ${topic}${style ? `\nStyle/Tone: ${style}` : ''}`,
+      userMessage,
     });
 
     return NextResponse.json({

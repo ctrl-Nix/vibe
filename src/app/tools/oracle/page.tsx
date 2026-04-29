@@ -139,6 +139,55 @@ export default function OraclePage() {
     } catch (err: any) {
       if (err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'An error occurred');
+  const handleSynthesize = async () => {
+    if (!result) return;
+    
+    const apiKey = localStorage.getItem("vibe_api_key")?.trim();
+    const provider = localStorage.getItem("vibe_api_provider");
+
+    if (!apiKey || !provider) {
+      setError("No API key found. Click ⚙️ in the navbar to add your key.");
+      window.dispatchEvent(new CustomEvent('vibe:openSettings'));
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    abortControllerRef.current = new AbortController();
+
+    try {
+      const response = await fetch('/api/oracle', {
+        method: 'POST',
+        signal: abortControllerRef.current.signal,
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'x-api-provider': provider,
+        },
+        body: JSON.stringify({
+          topic: "Synthesis",
+          isSynthesis: true,
+          ideasToSynthesize: result.ideas.map(i => `${i.title}: ${i.description} | Twist: ${i.twist}`),
+          bibleContext: formattedContext,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to synthesize ideas');
+      }
+
+      const { data: parsed, error: parseError } = parseStructuredOutput<OracleResult>(data.data);
+
+      if (parseError) {
+        throw new Error("VIBE couldn't merge these ideas. Try again or generate new ones.");
+      }
+
+      setResult(parsed);
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
+      setError(err instanceof Error ? err.message : 'An error occurred during synthesis');
     } finally {
       setLoading(false);
       abortControllerRef.current = null;
@@ -207,7 +256,27 @@ export default function OraclePage() {
               </div>
             )}
 
-            {result && <OracleCard result={result} />}
+            {result && (
+              <div className="animate-fade-in">
+                <OracleCard result={result} />
+                
+                {result.ideas.length > 1 && (
+                  <div className="mt-12 p-8 border-[3px] border-black bg-white shadow-[6px_6px_0px_#000] flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="max-w-md">
+                      <h3 className="font-black uppercase text-sm mb-1">Narrative Synthesis</h3>
+                      <p className="text-xs font-bold opacity-60">Love all these ideas? Merge them into one complex, high-concept masterpiece.</p>
+                    </div>
+                    <button
+                      onClick={handleSynthesize}
+                      disabled={loading}
+                      className="nb-button bg-[#FFE135] px-10 py-4 text-xs font-black uppercase tracking-widest whitespace-nowrap"
+                    >
+                      {loading ? 'Synthesizing...' : 'Synthesize All →'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {error && (
               <div className="mt-8 p-6 bg-[#FF6B6B]/10 border-[3px] border-[#FF6B6B] text-rose-600 font-black uppercase text-xs tracking-widest leading-relaxed animate-fade-in">
