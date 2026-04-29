@@ -1,5 +1,5 @@
 // File location: src/app/tools/prompt-optimizer/page.tsx
-// Prompt Optimizer tool page (Structured Output & Retries)
+// Prompt Optimizer tool page (Teaching Mode & Advanced Retries)
 
 'use client';
 
@@ -66,7 +66,7 @@ export default function PromptOptimizerPage() {
     }
   };
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (formData: FormData, isRetry = false) => {
     const apiKey = localStorage.getItem("vibe_api_key")?.trim();
     const provider = localStorage.getItem("vibe_api_provider");
 
@@ -76,7 +76,7 @@ export default function PromptOptimizerPage() {
       return;
     }
 
-    if (lastInputRef.current !== formData.prompt) {
+    if (!isRetry && lastInputRef.current !== formData.prompt) {
       setRetryCount(0);
       lastInputRef.current = formData.prompt;
     }
@@ -88,6 +88,16 @@ export default function PromptOptimizerPage() {
     abortControllerRef.current = new AbortController();
 
     try {
+      let userMsg = `Please improve this prompt and teach me why:\n\n${formData.prompt}`;
+      
+      // Step 2 Retry: Add forceful instruction
+      if (retryCount === 1) {
+        userMsg += `\n\nIMPORTANT: Your previous response was not valid JSON. Return ONLY the JSON object, nothing else.`;
+      }
+      
+      // Step 3 Retry: (Logic handled by asking for simpler schema in prompt if needed, 
+      // but here we just try one more time before fallback)
+
       const response = await fetch('/api/prompt-optimizer', {
         method: 'POST',
         signal: abortControllerRef.current.signal,
@@ -98,6 +108,7 @@ export default function PromptOptimizerPage() {
         },
         body: JSON.stringify({
           ...formData,
+          prompt: formData.prompt, // Ensure we use the latest prompt
           bibleContext: formattedContext,
         }),
       });
@@ -116,9 +127,11 @@ export default function PromptOptimizerPage() {
 
       if (parseError) {
         if (retryCount < 2) {
-          setRetryCount(prev => prev + 1);
+          const nextRetry = retryCount + 1;
+          setRetryCount(nextRetry);
           setLoading(false);
-          handleSubmit(formData);
+          // Small delay before retry
+          setTimeout(() => handleSubmit(formData, true), 500);
           return;
         } else {
           throw new Error("VIBE is having trouble with this input. Try rephrasing it.");
@@ -159,7 +172,7 @@ export default function PromptOptimizerPage() {
             <h1 className="text-5xl font-[900] tracking-tighter uppercase">Prompt Optimizer</h1>
           </div>
           <p className="text-xl font-bold max-w-2xl border-l-[6px] border-black pl-6 py-1">
-            Precision engineering for the creative mind. Structured prompt optimization.
+            Don't just get a better prompt. <span className="bg-[#FFE135] px-2">Become a better writer.</span>
           </p>
         </div>
 
@@ -170,7 +183,7 @@ export default function PromptOptimizerPage() {
               fields={fields}
               onSubmit={handleSubmit}
               loading={loading}
-              submitLabel={loading ? (retryCount > 0 ? `Retrying (${retryCount})...` : "Optimizing...") : "Optimize Prompt"}
+              submitLabel={loading ? (retryCount > 0 ? `Refining Analysis (${retryCount})...` : "Analyzing...") : "Analyze & Optimize"}
               initialData={initialData}
             />
             {loading && (
@@ -178,7 +191,7 @@ export default function PromptOptimizerPage() {
                 onClick={handleCancel}
                 className="w-full mt-4 text-[10px] font-black uppercase text-rose-500 hover:underline tracking-widest"
               >
-                Cancel Generation
+                Cancel Analysis
               </button>
             )}
           </div>
@@ -186,15 +199,16 @@ export default function PromptOptimizerPage() {
           <div className="min-h-[400px] flex flex-col">
             {!result && !loading && (
               <div className="flex flex-col items-center justify-center h-64 border-[3px] border-black border-dashed opacity-40">
-                <span className="text-5xl mb-4">🪄</span>
-                <p className="font-black uppercase tracking-widest text-sm">Waiting for the magic</p>
+                <span className="text-5xl mb-4">🎓</span>
+                <p className="font-black uppercase tracking-widest text-sm text-center">Ready for your prompt engineering lesson?</p>
               </div>
             )}
 
             {loading && (
               <div className="flex flex-col items-center justify-center h-64">
                 <div className="w-16 h-16 border-[4px] border-black border-t-[#FFE135] animate-spin mb-4"></div>
-                <p className="font-black uppercase tracking-widest text-sm">Refining Instructions...</p>
+                <p className="font-black uppercase tracking-widest text-sm">Professor AI is grading your prompt...</p>
+                {retryCount > 0 && <p className="text-[10px] font-black uppercase mt-2 opacity-40 animate-pulse">Ensuring structured feedback...</p>}
               </div>
             )}
 

@@ -1,5 +1,5 @@
 // File location: src/app/api/prompt-optimizer/route.ts
-// Prompt Optimizer API endpoint (Structured JSON Output)
+// Prompt Optimizer API (Teaching Mode)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { callLLM } from '@/lib/llm';
@@ -29,28 +29,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const toolPrompt = `You are a prompt engineering expert. Analyze the user's prompt, identify exactly what makes it weak, and rewrite it to be specific, clear, and effective.
-${targetModel ? `Target Model: ${targetModel}` : ''}
+    const toolPrompt = `You are a prompt engineering professor at a top university. Your job is not just to rewrite prompts — it's to teach users exactly why their prompt was weak and what principles make a prompt powerful.
+
+Analyze the user's prompt deeply. Identify specific fragments that are weak. For each fragment, name the principle it violates and explain the fix concisely.
+
+Principles you can reference:
+- be-specific: prompt is too vague or broad
+- add-context: missing background the AI needs
+- define-output: didn't specify format, length, or structure
+- set-constraints: no boundaries or scope given
+- show-example: would benefit from an example
+- reduce-ambiguity: could be interpreted multiple ways
+- add-role: no persona or expertise assigned to the AI
+${targetModel ? `\nTarget Model: ${targetModel}` : ''}
 ${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
 
     const schema = `{
-  "original": "the original prompt verbatim",
-  "optimized": "the rewritten prompt",
-  "changes": [
+  "original": "verbatim original prompt",
+  "optimized": "fully rewritten prompt",
+  "score_before": number (1-10),
+  "score_after": number (1-10),
+  "lesson_summary": "one sentence: the most important thing this user should learn from this",
+  "annotations": [
     {
-      "what": "what changed",
-      "why": "why this improves the prompt"
+      "id": "a1",
+      "original_fragment": "exact substring from original",
+      "issue": "concise explanation of what's wrong",
+      "fix": "what the optimized version does instead",
+      "principle": "be-specific|add-context|define-output|set-constraints|show-example|reduce-ambiguity|add-role"
     }
   ],
-  "score_before": number (1-10),
-  "score_after": number (1-10)
+  "principle_counts": {
+    "be-specific": number,
+    "add-context": number
+  }
 }`;
 
     const result = await callLLM({
       apiKey,
       provider,
       systemPrompt: withJsonOutput(toolPrompt, schema),
-      userMessage: `Please improve this prompt:\n\n${prompt}`,
+      userMessage: `Please improve this prompt and teach me why:\n\n${prompt}`,
     });
 
     return NextResponse.json({

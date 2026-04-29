@@ -45,15 +45,31 @@ export interface PlotlineResult {
   hook: string;
 }
 
+export type PromptPrinciple =
+  | "be-specific"
+  | "add-context"
+  | "define-output"
+  | "set-constraints"
+  | "show-example"
+  | "reduce-ambiguity"
+  | "add-role";
+
+export interface PromptAnnotation {
+  id: string;
+  original_fragment: string;
+  issue: string;
+  fix: string;
+  principle: PromptPrinciple;
+}
+
 export interface PromptOptimizerResult {
   original: string;
   optimized: string;
-  changes: {
-    what: string;
-    why: string;
-  }[];
   score_before: number;
   score_after: number;
+  annotations: PromptAnnotation[];
+  lesson_summary: string;
+  principle_counts: Partial<Record<PromptPrinciple, number>>;
 }
 
 export interface OracleRequest {
