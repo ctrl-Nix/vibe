@@ -99,11 +99,11 @@ export default function Home() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] uppercase mb-8">
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[1.1] uppercase mb-8">
               Stop fighting<br />
               your story.
               <br />
-              <span className="bg-[#FFE135] px-2">
+              <span className="bg-[#FFE135] px-2 py-1">
                 {typed}
                 {showCursor && (
                   <span className="animate-pulse">|</span>
