@@ -6,6 +6,15 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import { WorkflowMap } from '@/components/WorkflowMap';
 import { Marquee } from '@/components/Marquee';
+import { 
+  OracleIcon, 
+  PlotlineIcon, 
+  JudgeIcon, 
+  OptimizerIcon,
+  KeyIcon,
+  LockIcon,
+  LinkIcon 
+} from '@/components/Icons';
 import { useEffect, useState } from 'react';
 
 const HEADLINE_WORDS = [
@@ -46,6 +55,7 @@ export default function Home() {
     {
       name: 'Oracle',
       label: 'V — Visualize',
+      icon: <OracleIcon className="w-8 h-8" />,
       description:
         'Stuck on what happens next? Oracle gives you 3 distinct ideas — each with a twist you didn\'t see coming.',
       path: '/tools/oracle',
@@ -54,6 +64,7 @@ export default function Home() {
     {
       name: 'Plotline',
       label: 'I — Ideate',
+      icon: <PlotlineIcon className="w-8 h-8" />,
       description:
         'Turn a rough concept into a full 3-act structure. Chapter beats, character arcs, the works.',
       path: '/tools/plotline',
@@ -62,6 +73,7 @@ export default function Home() {
     {
       name: 'Judge',
       label: 'B — Build',
+      icon: <JudgeIcon className="w-8 h-8" />,
       description:
         'Paste your draft. Get a scorecard — strengths, specific fixes, and an honest verdict. No fluff.',
       path: '/tools/judge',
@@ -70,6 +82,7 @@ export default function Home() {
     {
       name: 'Prompt Optimizer',
       label: 'E — Express',
+      icon: <OptimizerIcon className="w-8 h-8" />,
       description:
         'Bad prompts get generic output. Optimizer rewrites yours and teaches you exactly why it works better.',
       path: '/tools/prompt-optimizer',
@@ -210,9 +223,12 @@ export default function Home() {
                 className={`h-full ${tool.color} border-[4px] border-black shadow-[8px_8px_0px_#000] group-hover:shadow-[4px_4px_0px_#000] group-hover:translate-x-[4px] group-hover:translate-y-[4px] transition-all p-10`}
               >
                 <div className="flex items-start justify-between mb-8">
-                  <h3 className="text-2xl font-black uppercase tracking-tighter">
-                    {tool.name}
-                  </h3>
+                  <div className="flex items-center gap-4">
+                    <div className="text-black">{tool.icon}</div>
+                    <h3 className="text-2xl font-black uppercase tracking-tighter">
+                      {tool.name}
+                    </h3>
+                  </div>
                   <div className="text-[10px] font-black tracking-[0.25em] uppercase opacity-40 text-right">
                     {tool.label}
                   </div>
@@ -236,11 +252,12 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="border-[3px] border-black bg-white grid grid-cols-1 md:grid-cols-3 divide-y-[3px] md:divide-y-0 md:divide-x-[3px] divide-black">
           {[
-            { title: 'Your key, your call', desc: 'Gemini free tier works. No credit card needed to start.' },
-            { title: 'Zero data stored', desc: 'Your writing and key live in your browser. Not our servers.' },
-            { title: 'Tools that connect', desc: 'Output from one tool flows directly into the next.' },
+            { icon: <KeyIcon className="w-6 h-6" />, title: 'Your key, your call', desc: 'Gemini free tier works. No credit card needed to start.' },
+            { icon: <LockIcon className="w-6 h-6" />, title: 'Zero data stored', desc: 'Your writing and key live in your browser. Not our servers.' },
+            { icon: <LinkIcon className="w-6 h-6" />, title: 'Tools that connect', desc: 'Output from one tool flows directly into the next.' },
           ].map((item, i) => (
             <div key={i} className="p-8 flex gap-4 items-start">
+              <div className="mt-1 text-black">{item.icon}</div>
               <div>
                 <div className="font-black uppercase text-sm mb-1">
                   {item.title}

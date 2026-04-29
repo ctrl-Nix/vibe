@@ -12,6 +12,8 @@ import { useBible } from '@/hooks/useBible';
 import { getWorkflowPayload, isPayloadFresh, clearWorkflowPayload } from '@/lib/workflowStore';
 import { parseStructuredOutput } from '@/lib/parseOutput';
 
+import { JudgeIcon } from '@/components/Icons';
+
 export default function JudgePage() {
   const [result, setResult] = useState<JudgeResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -154,7 +156,12 @@ export default function JudgePage() {
         )}
 
         <div className="mb-16 animate-fade-in border-l-[8px] border-black pl-8 py-2">
-          <h1 className="text-6xl font-black tracking-tighter uppercase">Judge</h1>
+          <div className="flex items-center gap-6 mb-4">
+            <div className="w-16 h-16 border-[3px] border-black bg-[#FFE135] shadow-[4px_4px_0px_#000] flex items-center justify-center text-3xl">
+              <JudgeIcon className="w-8 h-8" />
+            </div>
+            <h1 className="text-6xl font-black tracking-tighter uppercase">Judge</h1>
+          </div>
           <p className="text-xl font-bold max-w-2xl mt-4 opacity-60">
             Professional evaluation for serious writers. Structured AI feedback.
           </p>

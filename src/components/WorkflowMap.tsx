@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { ToolId, WORKFLOW_ROUTES } from '@/types';
+import { OracleIcon, PlotlineIcon, JudgeIcon, OptimizerIcon } from '@/components/Icons';
 
 export const WorkflowMap = () => {
-  const tools: { id: ToolId; name: string; color: string }[] = [
-    { id: 'oracle', name: 'Oracle', color: 'bg-[#4ECDC4]' },
-    { id: 'plotline', name: 'Plotline', color: 'bg-[#FF6B6B]' },
-    { id: 'judge', name: 'Judge', color: 'bg-[#FFE135]' },
-    { id: 'prompt-optimizer', name: 'Optimizer', color: 'bg-white' },
+  const tools: { id: ToolId; name: string; icon: React.ReactNode; color: string }[] = [
+    { id: 'oracle', name: 'Oracle', icon: <OracleIcon className="w-6 h-6" />, color: 'bg-[#4ECDC4]' },
+    { id: 'plotline', name: 'Plotline', icon: <PlotlineIcon className="w-6 h-6" />, color: 'bg-[#FF6B6B]' },
+    { id: 'judge', name: 'Judge', icon: <JudgeIcon className="w-6 h-6" />, color: 'bg-[#FFE135]' },
+    { id: 'prompt-optimizer', name: 'Optimizer', icon: <OptimizerIcon className="w-6 h-6" />, color: 'bg-white' },
   ];
 
   return (
@@ -23,6 +24,7 @@ export const WorkflowMap = () => {
           <div key={tool.id} className="relative group">
             <Link href={`/tools/${tool.id}`}>
               <div className={`nb-card ${tool.color} p-8 flex flex-col items-center text-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] transition-all cursor-pointer`}>
+                <div className="mb-4 text-black">{tool.icon}</div>
                 <h3 className="font-[900] uppercase text-base tracking-widest">{tool.name}</h3>
               </div>
             </Link>
