@@ -21,10 +21,11 @@ export async function callLLM({
   const llmCall = (async () => {
     if (provider === "gemini") {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(
-        systemPrompt + "\n\n" + userMessage
-      );
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: systemPrompt 
+      });
+      const result = await model.generateContent(userMessage);
       return result.response.text();
     }
 

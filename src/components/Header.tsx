@@ -18,10 +18,10 @@ export default function Header() {
   }, []);
 
   const tools = [
-    { name: 'Judge', path: '/tools/judge', emoji: '⭐' },
-    { name: 'Oracle', path: '/tools/oracle', emoji: '🔮' },
-    { name: 'Plotline', path: '/tools/plotline', emoji: '📖' },
-    { name: 'Prompt Optimizer', path: '/tools/prompt-optimizer', emoji: '✨' },
+    { name: 'Judge', path: '/tools/judge' },
+    { name: 'Oracle', path: '/tools/oracle' },
+    { name: 'Plotline', path: '/tools/plotline' },
+    { name: 'Prompt Optimizer', path: '/tools/prompt-optimizer' },
   ];
 
   const getProviderInitial = () => {
@@ -56,23 +56,22 @@ export default function Header() {
             
             <button
               onClick={() => setIsModalOpen(true)}
-              className="ml-4 p-2 relative hover:scale-110 transition-transform group"
+              className="ml-4 flex items-center gap-2 group transition-all"
               title="API Settings"
             >
-              <span className="text-xl">⚙️</span>
-              <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full border-2 border-black flex items-center justify-center text-[10px] font-[900] shadow-[2px_2px_0px_#000] group-hover:shadow-none group-hover:translate-x-[1px] group-hover:translate-y-[1px] transition-all ${isSaved ? 'bg-emerald-500 text-white' : 'bg-rose-500'}`}>
+              <div className={`w-8 h-8 rounded-full border-2 border-black flex items-center justify-center text-[10px] font-[900] shadow-[3px_3px_0px_#000] group-hover:shadow-none group-hover:translate-x-[1px] group-hover:translate-y-[1px] transition-all ${isSaved ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
                 {isSaved ? getProviderInitial() : '!'}
               </div>
+              <span className="text-[10px] font-black uppercase tracking-widest group-hover:underline">Settings</span>
             </button>
           </div>
 
           <div className="md:hidden flex items-center gap-4">
              <button
               onClick={() => setIsModalOpen(true)}
-              className="p-2 relative"
+              className="flex items-center gap-2"
             >
-              <span className="text-xl">⚙️</span>
-              <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full border-2 border-black flex items-center justify-center text-[10px] font-[900] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-rose-500'}`}>
+              <div className={`w-7 h-7 rounded-full border-2 border-black flex items-center justify-center text-[10px] font-[900] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
                 {isSaved ? getProviderInitial() : '!'}
               </div>
             </button>
@@ -97,7 +96,6 @@ export default function Header() {
                 className="block px-4 py-3 text-sm font-black uppercase tracking-widest border-2 border-black bg-white shadow-[4px_4px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <span className="mr-3">{tool.emoji}</span>
                 {tool.name}
               </Link>
             ))}
