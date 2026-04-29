@@ -19,6 +19,41 @@ export const StoryBiblePanel: React.FC = () => {
     savedTimeoutRef.current = setTimeout(() => setShowSaved(false), 1500);
   };
 
+  const exportProject = () => {
+    const projectData = {
+      bible: localStorage.getItem('vibe_bible'),
+      workflow: localStorage.getItem('vibe_workflow'),
+      timestamp: Date.now(),
+      version: '1.0'
+    };
+    const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vibe_project_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importProject = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (data.bible) {
+          localStorage.setItem('vibe_bible', data.bible);
+          setBible(JSON.parse(data.bible));
+          if (data.workflow) localStorage.setItem('vibe_workflow', data.workflow);
+        }
+      } catch (err) {
+        console.error("Import failed", err);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <>
       {isOpen && (
@@ -109,6 +144,25 @@ export const StoryBiblePanel: React.FC = () => {
                 className="nb-input py-3 text-sm resize-none"
               />
             </div>
+          </div>
+
+          <div className="mt-12 space-y-4">
+            <div className="h-[2px] bg-black/10 w-full mb-6" />
+            <button 
+              onClick={exportProject}
+              className="w-full nb-button py-3 text-xs bg-black text-white hover:bg-white hover:text-black"
+            >
+              Export Project (.json)
+            </button>
+            <label className="w-full nb-button py-3 text-xs bg-white text-black cursor-pointer text-center block">
+              Import Project
+              <input 
+                type="file" 
+                accept=".json" 
+                onChange={importProject} 
+                className="hidden" 
+              />
+            </label>
           </div>
 
           <div className="mt-auto pt-12 pb-6">
