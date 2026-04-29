@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ActiveBibleBadge } from './ActiveBibleBadge';
 import { ApiKeyModal } from './ApiKeyModal';
 import { useApiKey } from '@/hooks/useApiKey';
@@ -9,7 +9,13 @@ import { useApiKey } from '@/hooks/useApiKey';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { isSaved } = useApiKey();
+  const { isSaved, provider } = useApiKey();
+
+  useEffect(() => {
+    const handleOpenSettings = () => setIsModalOpen(true);
+    window.addEventListener('vibe:openSettings', handleOpenSettings);
+    return () => window.removeEventListener('vibe:openSettings', handleOpenSettings);
+  }, []);
 
   const tools = [
     { name: 'Judge', path: '/tools/judge', emoji: '⭐' },
@@ -17,6 +23,11 @@ export default function Header() {
     { name: 'Plotline', path: '/tools/plotline', emoji: '📖' },
     { name: 'Prompt Optimizer', path: '/tools/prompt-optimizer', emoji: '✨' },
   ];
+
+  const getProviderInitial = () => {
+    if (!provider) return '';
+    return provider.charAt(0).toUpperCase();
+  };
 
   return (
     <header className="bg-[#FFE135] border-b-[3px] border-black sticky top-0 z-40">
@@ -43,14 +54,15 @@ export default function Header() {
               </Link>
             ))}
             
-            {/* Settings Button with Dot Indicator */}
             <button
               onClick={() => setIsModalOpen(true)}
-              className="ml-4 p-2 relative hover:scale-110 transition-transform"
+              className="ml-4 p-2 relative hover:scale-110 transition-transform group"
               title="API Settings"
             >
               <span className="text-xl">⚙️</span>
-              <span className={`absolute top-1.5 right-1.5 w-3 h-3 rounded-full border-2 border-black ${isSaved ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+              <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full border-2 border-black flex items-center justify-center text-[10px] font-[900] shadow-[2px_2px_0px_#000] group-hover:shadow-none group-hover:translate-x-[1px] group-hover:translate-y-[1px] transition-all ${isSaved ? 'bg-emerald-500 text-white' : 'bg-rose-500'}`}>
+                {isSaved ? getProviderInitial() : '!'}
+              </div>
             </button>
           </div>
 
@@ -60,7 +72,9 @@ export default function Header() {
               className="p-2 relative"
             >
               <span className="text-xl">⚙️</span>
-              <span className={`absolute top-1.5 right-1.5 w-3 h-3 rounded-full border-2 border-black ${isSaved ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+              <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full border-2 border-black flex items-center justify-center text-[10px] font-[900] ${isSaved ? 'bg-emerald-500 text-white' : 'bg-rose-500'}`}>
+                {isSaved ? getProviderInitial() : '!'}
+              </div>
             </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}

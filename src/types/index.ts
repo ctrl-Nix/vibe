@@ -103,10 +103,33 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-export type LLMProvider = 'openai' | 'anthropic';
+// BYOK Types
+export type Provider = 'gemini' | 'openai' | 'anthropic';
+
+export interface ApiConfig {
+  key: string;
+  provider: Provider;
+}
+
+// Workflow Chain Types
+export type ToolId = "oracle" | "plotline" | "judge" | "prompt-optimizer";
+
+export interface WorkflowPayload {
+  sourceToolId: ToolId;
+  content: string;
+  bibleContext?: string;
+  timestamp: number;
+}
+
+export const WORKFLOW_ROUTES: Record<ToolId, ToolId[]> = {
+  "oracle":           ["plotline", "judge"],
+  "plotline":         ["judge", "prompt-optimizer"],
+  "judge":            ["prompt-optimizer", "oracle"],
+  "prompt-optimizer": ["oracle", "plotline"],
+};
 
 export interface ToolMetadata {
-  id: string;
+  id: ToolId;
   name: string;
   description: string;
   icon: string;

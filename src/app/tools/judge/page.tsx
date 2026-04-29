@@ -1,22 +1,37 @@
 // File location: src/app/tools/judge/page.tsx
-// Judge tool page (Neobrutalism + BYOK)
+// Judge tool page (Workflow Chain integrated)
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/Header';
 import InputForm, { FormField, FormData } from '@/components/InputForm';
 import ResultDisplay from '@/components/ResultDisplay';
-import { JudgeResponse, ApiError } from '@/types';
+import { SendToButton } from '@/components/SendToButton';
+import { JudgeResponse, ApiError, ToolId } from '@/types';
 import { useBible } from '@/hooks/useBible';
-import { useApiKey } from '@/hooks/useApiKey';
+import { getWorkflowPayload, isPayloadFresh, clearWorkflowPayload } from '@/lib/workflowStore';
 
 export default function JudgePage() {
   const [result, setResult] = useState<JudgeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialData, setInitialData] = useState<FormData | undefined>(undefined);
+  const [incomingBanner, setIncomingBanner] = useState<ToolId | null>(null);
   const { formattedContext } = useBible();
-  const { apiKey, provider } = useApiKey();
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const payload = getWorkflowPayload();
+    if (payload && isPayloadFresh(payload)) {
+      setInitialData({ text: payload.content });
+      setIncomingBanner(payload.sourceToolId);
+      clearWorkflowPayload();
+      
+      const timer = setTimeout(() => setIncomingBanner(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const fields: FormField[] = [
     {
@@ -41,14 +56,34 @@ export default function JudgePage() {
     },
   ];
 
+  const handleCancel = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setLoading(false);
+      setError("Request cancelled.");
+    }
+  };
+
   const handleSubmit = async (formData: FormData) => {
+    const apiKey = localStorage.getItem("vibe_api_key")?.trim();
+    const provider = localStorage.getItem("vibe_api_provider");
+
+    if (!apiKey || !provider) {
+      setError("No API key found. Click ⚙️ in the navbar to add your key.");
+      window.dispatchEvent(new CustomEvent('vibe:openSettings'));
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
 
+    abortControllerRef.current = new AbortController();
+
     try {
       const response = await fetch('/api/judge', {
         method: 'POST',
+        signal: abortControllerRef.current.signal,
         headers: { 
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
@@ -63,41 +98,49 @@ export default function JudgePage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          window.dispatchEvent(new CustomEvent('vibe:openSettings'));
+        }
         const errorData = data as ApiError;
-        throw new Error(errorData.message || 'Failed to get feedback');
+        throw new Error(errorData.error || errorData.message || 'Failed to get feedback');
       }
 
       setResult(data.data);
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-20 bg-[#FFFBF0]">
       <Header />
 
       <main className="max-w-6xl mx-auto px-4 py-16">
-        <div className="mb-16">
+        {incomingBanner && (
+          <div className="mb-8 p-4 bg-[#FFE135] border-[3px] border-black shadow-[4px_4px_0px_#000] font-[900] uppercase text-xs flex justify-between items-center animate-fade-in">
+             <div className="flex items-center gap-3">
+               <span className="text-xl">✓</span>
+               Received output from {incomingBanner} — ready to run
+             </div>
+             <button onClick={() => setIncomingBanner(null)} className="hover:scale-110 transition-transform">✕</button>
+          </div>
+        )}
+
+        <div className="mb-16 animate-fade-in">
           <div className="flex items-center gap-6 mb-4">
             <div className="w-16 h-16 border-[3px] border-black bg-[#FFE135] shadow-[4px_4px_0px_#000] flex items-center justify-center text-3xl">
               ⭐
             </div>
-            <h1 className="text-5xl font-black tracking-tighter uppercase">Judge</h1>
+            <h1 className="text-5xl font-[900] tracking-tighter uppercase">Judge</h1>
           </div>
-          <p className="text-xl font-medium max-w-2xl border-l-[6px] border-black pl-6">
-            Get AI feedback on your writing quality. Professional evaluation for serious writers.
+          <p className="text-xl font-bold max-w-2xl border-l-[6px] border-black pl-6 py-1">
+            Professional evaluation for serious writers. Bulletproof AI feedback.
           </p>
         </div>
-
-        {error && (
-          <div className="mb-10 p-6 bg-[#FF6B6B] border-[3px] border-black shadow-[4px_4px_0px_#000] font-bold uppercase text-sm flex items-center gap-4">
-            <span className="text-2xl">⚠️</span>
-            {error}
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <div className="lg:col-span-5">
@@ -107,77 +150,66 @@ export default function JudgePage() {
                 fields={fields}
                 onSubmit={handleSubmit}
                 loading={loading}
-                submitLabel="Get Evaluation"
+                submitLabel={loading ? "Generating..." : "Get Evaluation"}
+                initialData={initialData}
               />
+              
+              {loading && (
+                <button 
+                  onClick={handleCancel}
+                  className="w-full mt-4 text-[10px] font-black uppercase text-rose-500 hover:underline tracking-widest"
+                >
+                  Cancel Generation
+                </button>
+              )}
             </div>
           </div>
 
           <div className="lg:col-span-7">
-            <div className="nb-card p-10 bg-white h-full">
+            <div className="nb-card p-10 bg-white h-full min-h-[400px] flex flex-col">
               <h2 className="text-xl font-black mb-8 uppercase tracking-widest border-b-[3px] border-black pb-2 inline-block">Evaluation Results</h2>
               
-              {!result && !loading && (
-                <div className="flex flex-col items-center justify-center h-64 border-[3px] border-black border-dashed opacity-40">
-                  <span className="text-5xl mb-4">⚖️</span>
-                  <p className="font-black uppercase tracking-widest text-sm">Waiting for submission</p>
-                </div>
-              )}
-
-              {loading && (
-                <div className="flex flex-col items-center justify-center h-64">
-                  <div className="w-16 h-16 border-[4px] border-black border-t-[#FFE135] animate-spin mb-4"></div>
-                  <p className="font-black uppercase tracking-widest text-sm">AI is reading...</p>
-                </div>
-              )}
-
-              {result && (
-                <div className="space-y-10 animate-fade-in">
-                  <div className="flex items-center gap-8 bg-[#FFE135] p-8 border-[3px] border-black shadow-[4px_4px_0px_#000]">
-                    <div className="text-6xl font-black">{result.score}</div>
-                    <div className="font-black uppercase tracking-widest leading-none">
-                      Overall Writing Score
-                    </div>
+              <div className="flex-grow flex flex-col">
+                {!result && !loading && (
+                  <div className="flex flex-col items-center justify-center h-64 border-[3px] border-black border-dashed opacity-40">
+                    <span className="text-5xl mb-4">⚖️</span>
+                    <p className="font-black uppercase tracking-widest text-sm">Waiting for submission</p>
                   </div>
+                )}
 
-                  <div className="grid grid-cols-2 gap-6">
-                    {[
-                      { label: 'Clarity', val: result.detailedAnalysis.clarity, color: 'bg-[#4ECDC4]' },
-                      { label: 'Engagement', val: result.detailedAnalysis.engagement, color: 'bg-[#FF6B6B]' },
-                      { label: 'Structure', val: result.detailedAnalysis.structure, color: 'bg-white' },
-                      { label: 'Grammar', val: result.detailedAnalysis.grammar, color: 'bg-[#FFE135]' },
-                    ].map((stat) => (
-                      <div key={stat.label} className={`${stat.color} border-[3px] border-black p-5 shadow-[4px_4px_0px_#000]`}>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">{stat.label}</p>
-                        <p className="text-3xl font-black">{stat.val}</p>
+                {loading && (
+                  <div className="flex flex-col items-center justify-center h-64">
+                    <div className="w-16 h-16 border-[4px] border-black border-t-[#FFE135] animate-spin mb-4"></div>
+                    <p className="font-black uppercase tracking-widest text-sm">AI is thinking...</p>
+                  </div>
+                )}
+
+                {result && (
+                  <div className="space-y-10 animate-fade-in">
+                    <div className="flex items-center gap-8 bg-[#FFE135] p-8 border-[3px] border-black shadow-[4px_4px_0px_#000]">
+                      <div className="text-6xl font-black">{result.score}</div>
+                      <div className="font-black uppercase tracking-widest leading-none">
+                        Overall Score
                       </div>
-                    ))}
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-black uppercase tracking-widest">Strengths</h3>
-                    <div className="space-y-2">
-                      {result.strengths.map((s, i) => (
-                        <div key={i} className="flex gap-4 items-center bg-white border-[2px] border-black p-3 font-bold text-sm">
-                          <span className="bg-[#4ECDC4] border-[2px] border-black w-6 h-6 flex items-center justify-center text-[10px]">✓</span>
-                          {s}
-                        </div>
-                      ))}
                     </div>
-                  </div>
 
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-black uppercase tracking-widest">Improvements</h3>
-                    <div className="space-y-2">
-                      {result.improvements.map((im, i) => (
-                        <div key={i} className="flex gap-4 items-center bg-white border-[2px] border-black p-3 font-bold text-sm">
-                          <span className="bg-[#FF6B6B] border-[2px] border-black w-6 h-6 flex items-center justify-center text-[10px]">!</span>
-                          {im}
-                        </div>
-                      ))}
-                    </div>
+                    <ResultDisplay result={result.feedback} title="Full Critique" />
+                    
+                    <SendToButton 
+                      sourceToolId="judge" 
+                      content={result.feedback} 
+                    />
                   </div>
+                )}
+              </div>
 
-                  <ResultDisplay result={result.feedback} title="Full Critique" />
+              {error && (
+                <div className="mt-8 p-6 bg-[#FF6B6B]/10 border-[3px] border-[#FF6B6B] text-rose-600 font-black uppercase text-xs tracking-widest leading-relaxed animate-fade-in">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-xl">⚠️</span>
+                    <span className="text-[10px] opacity-60">Error Encountered</span>
+                  </div>
+                  {error}
                 </div>
               )}
             </div>

@@ -1,70 +1,60 @@
 // File location: src/app/api/oracle/route.ts
-// Oracle API endpoint (BYOK Support)
+// Oracle API endpoint (Bulletproof BYOK)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateOracleIdeas, LLMProvider } from '@/lib/llm-client';
-import { OracleRequest, OracleResponse, ApiError } from '@/types';
+import { callLLM } from '@/lib/llm';
+import { handleLLMError } from '@/lib/llmErrors';
+import { OracleRequest, Provider } from '@/types';
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest) {
+  const apiKey = request.headers.get('x-api-key');
+  const provider = request.headers.get('x-api-provider') as Provider;
+
+  if (!apiKey || !provider) {
+    return NextResponse.json(
+      { error: "No API key provided. Add your key in Settings." },
+      { status: 401 }
+    );
+  }
+
   try {
-    const apiKey = request.headers.get('x-api-key');
-    const provider = request.headers.get('x-api-provider') as LLMProvider;
-
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: 'Unauthorized', message: 'No API key found. Please add your key in Settings.' } as ApiError,
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
-    const { topic, type, style, context, bibleContext } = body as OracleRequest;
+    const { topic, type, style, bibleContext } = body as OracleRequest;
 
-    if (!topic || topic.trim().length === 0) {
+    if (!topic) {
       return NextResponse.json(
-        { error: 'Invalid input', message: 'Topic is required' } as ApiError,
+        { error: "Invalid input", message: "Topic is required" },
         { status: 400 }
       );
     }
 
-    const ideasRaw = await generateOracleIdeas(provider, apiKey, topic, type, style, bibleContext);
+    const systemPrompt = `You are a creative writing coach. Generate ${type} ideas for writers. Provide 5+ creative and unique ideas.
+${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
+
+    const result = await callLLM({
+      apiKey,
+      provider,
+      systemPrompt,
+      userMessage: `Generate creative ${type} ideas for: ${topic}${style ? `\nStyle/Tone: ${style}` : ''}`,
+    });
 
     return NextResponse.json({
       success: true,
       data: {
-        ideas: [
-          'Idea 1: Exploring new narrative depths...',
-          'Idea 2: A sudden shift in perspective...',
-          'Idea 3: The hidden motivations surface...',
-        ],
-        suggestions: [
-          'Try increasing the stakes in the second act',
-          'Explore the character\'s flaw more deeply',
-        ],
-        examples: [
-          'Example: He looked at the watch, realization dawning.',
-        ],
-        tips: [
-          'Show, don\'t tell',
-          'Keep descriptions concise',
-        ],
-      } as OracleResponse,
+        ideas: result.split('\n').filter(line => line.trim().length > 0).slice(0, 5),
+        suggestions: ['Explore the internal conflict', 'Add a ticking clock element'],
+        examples: ['A scene where the character loses everything but gains clarity.'],
+        tips: ['Focus on sensory details', 'Keep the stakes personal'],
+      },
     });
-  } catch (error: any) {
-    console.error('Oracle API Error:', error);
+  } catch (err: unknown) {
+    console.error('Oracle API Error:', err);
+    const errorMessage = handleLLMError(err, provider);
+    const isAuthError = errorMessage.toLowerCase().includes("invalid") || errorMessage.toLowerCase().includes("revoked");
+    
     return NextResponse.json(
-      {
-        error: 'Processing error',
-        message: error.message || 'Failed to generate ideas',
-      } as ApiError,
-      { status: 500 }
+      { error: errorMessage },
+      { status: isAuthError ? 401 : 500 }
     );
   }
-}
-
-export async function GET(): Promise<NextResponse> {
-  return NextResponse.json({
-    success: true,
-    message: 'Oracle API is running',
-  });
 }

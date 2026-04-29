@@ -1,8 +1,9 @@
 // File location: src/app/page.tsx
-// Home page (Neobrutalism Redesign)
+// Home page (Workflow Chain integrated)
 
 import Link from 'next/link';
 import Header from '@/components/Header';
+import { WorkflowMap } from '@/components/WorkflowMap';
 
 export default function Home() {
   const tools = [
@@ -93,6 +94,9 @@ export default function Home() {
             </Link>
           ))}
         </div>
+
+        {/* Workflow Map Integration */}
+        <WorkflowMap />
       </section>
 
       {/* Footer / CTA */}

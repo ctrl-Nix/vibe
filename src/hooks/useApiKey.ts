@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
-
-export type ApiProvider = 'openai' | 'anthropic';
+import { Provider } from '@/types';
 
 export const useApiKey = () => {
   const [apiKey, setApiKey] = useState<string>('');
-  const [provider, setProvider] = useState<ApiProvider>('openai');
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
   useEffect(() => {
     const savedKey = localStorage.getItem('vibe_api_key');
-    const savedProvider = localStorage.getItem('vibe_api_provider') as ApiProvider;
+    const savedProvider = localStorage.getItem('vibe_api_provider') as Provider;
     
     if (savedKey) {
       setApiKey(savedKey);
@@ -20,7 +19,7 @@ export const useApiKey = () => {
     }
   }, []);
 
-  const saveKey = (key: string, newProvider: ApiProvider) => {
+  const saveKey = (key: string, newProvider: Provider) => {
     localStorage.setItem('vibe_api_key', key);
     localStorage.setItem('vibe_api_provider', newProvider);
     setApiKey(key);
@@ -32,7 +31,7 @@ export const useApiKey = () => {
     localStorage.removeItem('vibe_api_key');
     localStorage.removeItem('vibe_api_provider');
     setApiKey('');
-    setProvider('openai');
+    setProvider(null);
     setIsSaved(false);
   };
 

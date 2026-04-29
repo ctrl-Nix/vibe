@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface FormField {
   name: string;
@@ -21,6 +21,7 @@ interface InputFormProps {
   loading: boolean;
   fields: FormField[];
   submitLabel?: string;
+  initialData?: FormData;
 }
 
 export default function InputForm({
@@ -28,11 +29,18 @@ export default function InputForm({
   loading,
   fields,
   submitLabel = 'Submit',
+  initialData,
 }: InputFormProps) {
   const [formData, setFormData] = useState<FormData>(
     fields.reduce((acc, field) => ({ ...acc, [field.name]: '' }), {})
   );
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(prev => ({ ...prev, ...initialData }));
+    }
+  }, [initialData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
