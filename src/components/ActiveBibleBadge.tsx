@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+import { useBible } from '@/hooks/useBible';
 import { PlotlineIcon } from './Icons';
 
 export const ActiveBibleBadge: React.FC = () => {
