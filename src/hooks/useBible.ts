@@ -25,6 +25,25 @@ export const useBible = () => {
   const saveBible = (newBible: StoryBible) => {
     setBible(newBible);
     localStorage.setItem('vibe_story_bible', JSON.stringify(newBible));
+
+    // Sync with Vector DB if Pinecone key is configured
+    const pineconeKey = localStorage.getItem('vibe_pinecone_key');
+    const openaiKey = localStorage.getItem('vibe_api_key'); // Reusing main key for embeddings if it's OpenAI
+
+    if (pineconeKey && openaiKey) {
+      const formatted = `Story: ${newBible.title} (${newBible.genre})\nCharacters: ${newBible.characters}\nSetting: ${newBible.setting}\nTone: ${newBible.tone}`;
+      if (formatted.trim() && formatted.length > 50) {
+        fetch('/api/bible', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-pinecone-key': pineconeKey,
+            'x-openai-key': openaiKey
+          },
+          body: JSON.stringify({ action: 'upsert', text: formatted })
+        }).catch(err => console.error('Failed to sync Story Bible to Vector DB:', err));
+      }
+    }
   };
 
   const getFormattedContext = (): string => {
