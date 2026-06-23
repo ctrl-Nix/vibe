@@ -16,6 +16,21 @@ VIBE is a private, professional, and modular AI workspace for creative writers. 
 - **Zero-Server Storage**: Your writing and keys never leave your browser.
 - **Professional Aesthetic**: High-impact, neobrutalist design built for deep work.
 
+## How It Works
+
+```mermaid
+graph TD
+    A[Story Bible] -->|Context| B(Oracle)
+    A -->|Context| C(Plotline)
+    A -->|Context| D(Judge)
+    A -->|Context| E(Prompt Optimizer)
+    
+    B -->|Idea| C
+    C -->|Outline| D
+    D -.->|Critique Loop| D
+    D -->|Refinement| E
+```
+
 ## Tech Stack
 - Next.js 14 (App Router)
 - TypeScript
