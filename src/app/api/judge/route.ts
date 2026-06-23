@@ -40,16 +40,62 @@ ${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
   "verdict_tag": "needs-work|promising|strong|excellent"
 }`;
 
-    const result = await callLLM({
+    // 1. Initial Critique
+    const initialResultRaw = await callLLM({
       apiKey,
       provider,
       systemPrompt: withJsonOutput(toolPrompt, schema),
       userMessage: `Please evaluate this writing:\n\n${text}${genre ? `\nGenre: ${genre}` : ''}`,
     });
 
+    // Parse initial critique
+    let initialCritique;
+    try {
+      const cleaned = initialResultRaw.replace(/```json/gi, '').replace(/```/g, '').trim();
+      initialCritique = JSON.parse(cleaned);
+    } catch(e) {
+      initialCritique = { score: 0 };
+    }
+
+    // 2. Rewrite
+    const rewriteSystemPrompt = `You are an expert editor. Rewrite the following text based on the critique provided. Ensure you maintain the original voice but apply all suggested fixes. Return ONLY the rewritten text, with no conversational filler or markdown formatting.
+${bibleContext ? `\nSTORY CONTEXT:\n${bibleContext}` : ''}`;
+    
+    const rewriteUserMessage = `ORIGINAL TEXT:\n${text}\n\nCRITIQUE TO APPLY:\n${initialResultRaw}`;
+
+    const rewrittenText = await callLLM({
+      apiKey,
+      provider,
+      systemPrompt: rewriteSystemPrompt,
+      userMessage: rewriteUserMessage,
+    });
+
+    // 3. Re-critique
+    const finalResultRaw = await callLLM({
+      apiKey,
+      provider,
+      systemPrompt: withJsonOutput(toolPrompt, schema),
+      userMessage: `Please evaluate this writing:\n\n${rewrittenText}${genre ? `\nGenre: ${genre}` : ''}`,
+    });
+
+    // Add rewritten_text and original_score to final result
+    let finalJson;
+    try {
+      const cleanedFinal = finalResultRaw.replace(/```json/gi, '').replace(/```/g, '').trim();
+      finalJson = JSON.parse(cleanedFinal);
+      finalJson.rewritten_text = rewrittenText.trim();
+      finalJson.original_score = initialCritique.score;
+    } catch(e) {
+      // If parsing fails, we'll try to just return the raw string (the frontend might fail to parse, but this is the best effort)
+      return NextResponse.json({
+        success: true,
+        data: finalResultRaw,
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      data: result, // result is the raw JSON string from AI
+      data: JSON.stringify(finalJson),
     });
   } catch (err: unknown) {
     console.error('Judge API Error:', err);

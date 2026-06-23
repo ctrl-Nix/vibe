@@ -19,10 +19,12 @@ export interface JudgeRequest {
 // Structured Result Types
 export interface JudgeResult {
   score: number;
+  original_score?: number;
   verdict: string;
   strengths: string[];
   fixes: string[];
   verdict_tag: "needs-work" | "promising" | "strong" | "excellent";
+  rewritten_text?: string;
 }
 
 export interface OracleResult {

@@ -52,8 +52,15 @@ ${result.fixes.map((f, i) => `${i + 1}. ${f}`).join('\n')}`;
 
         <div className="space-y-2">
           <div className="flex justify-between items-end mb-1">
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Overall Quality</p>
-            <p className="text-sm font-black">{result.score}/10</p>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">
+              {result.original_score ? 'Final Quality' : 'Overall Quality'}
+            </p>
+            <p className="text-sm font-black">
+              {result.original_score ? (
+                <span className="text-gray-400 line-through mr-2">{result.original_score}/10</span>
+              ) : null}
+              {result.score}/10
+            </p>
           </div>
           <div className="h-4 w-full bg-black/5 border-2 border-black">
             <div 
@@ -97,6 +104,17 @@ ${result.fixes.map((f, i) => `${i + 1}. ${f}`).join('\n')}`;
             </ul>
           </div>
         </div>
+
+        {result.rewritten_text && (
+          <div className="mt-8 space-y-4 border-t-2 border-black/10 pt-8">
+            <h3 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
+              <span className="text-blue-500 text-lg">✎</span> AI Suggested Rewrite
+            </h3>
+            <div className="bg-black/5 p-4 border border-black/10 whitespace-pre-wrap text-sm leading-relaxed">
+              {result.rewritten_text}
+            </div>
+          </div>
+        )}
 
         <div className="mt-8">
           <SendToButton 
