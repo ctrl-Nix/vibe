@@ -46,11 +46,13 @@ export async function POST(request: NextRequest) {
       const embedding = embedData.data[0].embedding;
 
       // Upsert to Pinecone
-      await index.upsert([{
-        id,
-        values: embedding,
-        metadata: { text }
-      }]);
+      await index.upsert({
+        records: [{
+          id,
+          values: embedding,
+          metadata: { text }
+        }]
+      });
 
       return NextResponse.json({ success: true, message: "Story Bible upserted to Vector DB successfully." });
     } 
